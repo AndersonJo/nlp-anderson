@@ -1,0 +1,33 @@
+# IDE
+.idea
+_site
+
+
+# Python
+*.pyc
+.ipynb_checkpoints
+
+# Data
+_data
+*.gz
+*.zip
+*.alz
+*.data
+*.json
+*.npz
+cifar-10-batches-py
+*.h5
+joblib
+
+# Specific Data
+imdb_full.pkl
+
+# TensorFlow Model
+*.model
+*.tfmodel
+_network
+_network_backup
+_tfmodel
+
+# R
+.Rhistory
