@@ -15,9 +15,11 @@ _data
 *.data
 *.json
 *.npz
+*.pkl
 cifar-10-batches-py
 *.h5
 joblib
+glove.840B.300d.txt
 
 # Specific Data
 imdb_full.pkl
