@@ -1,1 +1,3 @@
+tqdm
+numpy
 spacy==2.2.3

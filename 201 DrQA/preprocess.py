@@ -3,6 +3,7 @@
 
 import json
 import logging
+import msgpack
 import os
 import pickle
 import re
@@ -13,6 +14,7 @@ from functools import partial
 from multiprocessing import Pool
 from typing import List, Tuple, Union, Set
 
+import numpy as np
 import spacy
 from spacy.lang.en import English
 from spacy.tokens import Doc
@@ -25,11 +27,13 @@ spacy_: English = None
 
 def init() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument('--data_path', default='./data/datasets', type=str, help='SQuAD dataset directory path')
-    parser.add_argument('--embedding_path', default='./data/embeddings', type=str)
+    parser.add_argument('--data_dir', default='./data/datasets', type=str, help='SQuAD dataset directory path')
+    parser.add_argument('--embed_dir', default='./data/embeddings', type=str)
     parser.add_argument('--out', default='./data/datasets', type=str, help='preprocessed output directory path')
     parser.add_argument('--threads', default=64, type=int, help='the number of multiprocess jobs')
     parser.add_argument('--chunk', default=64, type=int, help='chunk size of multiprocess tokenizing and tagging')
+    parser.add_argument('--embedding_size', default=300, type=int, help='the size of embedding vector')
+    parser.add_argument('--sample_size', type=int, default=5000)
 
     args = parser.parse_args()
     return args
@@ -64,13 +68,14 @@ def load_dataset(path: str) -> List[Tuple[int, str, str, Tuple[int, int, str]]]:
 
 
 def load_vocab_data(parser: Namespace) -> Set[str]:
-    glove_path = os.path.join(parser.embedding_path, 'glove.840B.300d.txt')
-    pickle_path = os.path.join(parser.embedding_path, 'glove.840B.300d.pkl')
+    glove_path = os.path.join(parser.embed_dir, 'glove.840B.300d.txt')
+    pickle_path = os.path.join(parser.embed_dir, 'glove.840B.300d.pkl')
 
     if os.path.exists(pickle_path):
         return pickle.load(open(pickle_path, 'rb'))
 
     vocab = set()
+
     with open(glove_path, 'rt') as f:
         for line in tqdm(f, total=2196018, desc='Vocab'):
             word = line[:line.find(' ')]
@@ -84,11 +89,11 @@ def load_vocab_data(parser: Namespace) -> Set[str]:
 
 
 def load_preprocessed_squad_data(parser: Namespace, force=False):
-    squad_train_path = os.path.join(parser.data_path, 'SQuAD-v1.1-train.json')
-    squad_dev_path = os.path.join(parser.data_path, 'SQuAD-v1.1-dev.json')
+    squad_train_path = os.path.join(parser.data_dir, 'SQuAD-v1.1-train.json')
+    squad_dev_path = os.path.join(parser.data_dir, 'SQuAD-v1.1-dev.json')
 
-    squad_train_prep_path = os.path.join(parser.data_path, 'SQuAD-v1.1-train-preprocessed.pkl')
-    squad_dev_prep_path = os.path.join(parser.data_path, 'SQuAD-v1.1-dev-preprocessed.pkl')
+    squad_train_prep_path = os.path.join(parser.data_dir, 'SQuAD-v1.1-train-preprocessed.pkl')
+    squad_dev_prep_path = os.path.join(parser.data_dir, 'SQuAD-v1.1-dev-preprocessed.pkl')
 
     if not force and os.path.exists(squad_train_prep_path) and os.path.exists(squad_dev_prep_path):
         pbar = tqdm(total=2, desc='Load Pickle')
@@ -113,20 +118,21 @@ def load_preprocessed_squad_data(parser: Namespace, force=False):
         annotate(data_train[0])
 
         train = list(tqdm(pool.imap(annotate,
-                                    data_train[:200],
+                                    data_train,
                                     chunksize=parser.chunk),
                           total=len(data_train), desc='TRAIN'))
 
         dev = list(tqdm(pool.imap(annotate,
-                                  data_dev[:200],
+                                  data_dev,
                                   chunksize=parser.chunk),
                         total=len(data_dev), desc='TEST '))
 
     n_train = len(train)
     train = list(filter(lambda x: x is not None, train))
+    dev = list(filter(lambda x: x is not None, dev))
 
-    # pickle.dump(train, open(squad_train_prep_path, 'wb'))
-    # pickle.dump(dev, open(squad_dev_prep_path, 'wb'))
+    pickle.dump(train, open(squad_train_prep_path, 'wb'))
+    pickle.dump(dev, open(squad_dev_prep_path, 'wb'))
 
     logger.info(f'Removed inconsistent samples: {n_train - len(train)} samples have been removed in {n_train} samples')
     return train, dev
@@ -213,7 +219,7 @@ def build_vocabulary(vocab, train, dev) -> Tuple[List[str], List[str], List[str]
     counter_tag = Counter(w for row in full for w in row['ctx_tags'])
     counter_ent = Counter(w for row in full for w in row['ctx_ents'])
 
-    # Sort
+    # Sort and add PAD, UNK
     ctx_tags = sorted(counter_tag, key=counter_tag.get, reverse=True)
     ctx_ents = sorted(counter_ent, key=counter_ent.get, reverse=True)
     vocab = sorted([t for t in counter_vocab if t in vocab], key=counter_vocab.get, reverse=True)
@@ -229,11 +235,34 @@ def build_vocabulary(vocab, train, dev) -> Tuple[List[str], List[str], List[str]
     logger.info('Found {} POS tags.'.format(len(ctx_tags)))
     logger.info('Found {} entity tags: {}'.format(len(ctx_ents), ctx_ents))
 
+    # Add ID
+    add_id_ = partial(add_id, vocab2id=vocab2id, tag2id=tag2id, ent2id=ent2id)
+    [add_id_(row) for row in train]
+    [add_id_(row) for row in dev]
+
     return vocab, ctx_tags, ctx_ents, counter_vocab, counter_tag, counter_ent, vocab2id, tag2id, ent2id
 
 
-def build_embedding(vocab):
-    vocab_size = len(vocab)
+def build_embedding(parser, vocab, vocab2id: dict) -> Tuple[np.array, np.array]:
+    vocab_size, vector_size = (len(vocab), parser.embedding_size)
+
+    embed_matrix = np.zeros([vocab_size, vector_size])
+    embed_counts = np.zeros(vocab_size)
+    embed_counts[:2] = 1
+
+    glove_path = os.path.join(parser.embed_dir, 'glove.840B.300d.txt')
+
+    with open(glove_path, 'rt') as f:
+        for line in f:
+            elems = line.rstrip().split(' ')
+            word = unicodedata.normalize('NFD', elems[0])
+            if word in vocab2id:
+                word_id = vocab2id[word]
+                embed_counts[word_id] += 1
+                embed_matrix[word_id] += [float(v) for v in elems[1:]]
+    embed_matrix /= embed_counts.reshape((-1, 1))
+
+    return embed_matrix, embed_counts
 
 
 def add_id(row, vocab2id, tag2id, ent2id, unk_id=1):
@@ -247,7 +276,7 @@ def main():
     parser = init()
 
     # Load raw dataset - SQuAD dataset
-    train, dev = load_preprocessed_squad_data(parser, force=True)
+    train, dev = load_preprocessed_squad_data(parser, force=False)
 
     # Load voccvulary data (word data from word vectors)
     vocab = load_vocab_data(parser)
@@ -256,11 +285,42 @@ def main():
     _r = build_vocabulary(vocab, train, dev)
     vocab, ctx_tags, ctx_ents, counter_vocab, counter_tag, counter_ent, vocab2id, tag2id, ent2id = _r
 
-    add_id_ = partial(add_id, vocab2id=vocab2id, tag2id=tag2id, ent2id=ent2id)
-    [add_id_(row) for row in train]
-    [add_id_(row) for row in dev]
-
     # Build Embedding Layer
+    embed_matrix, embed_counts = build_embedding(parser, vocab, vocab2id)
+
+    # Save data and meta as message pack
+    meta = {
+        'vocab': vocab,
+        'ctx_tags': ctx_tags,
+        'ctx_ents': ctx_ents,
+        'embed_matrix': embed_matrix.tolist()
+    }
+    data = {
+        'train': train,
+        'dev': dev
+    }
+
+    sample = {
+        'train': train[:parser.sample_size],
+        'dev': dev[:parser.sample_size]
+    }
+
+    with open(os.path.join(parser.data_dir, 'meta.msgpack'), 'wb') as f:
+        msgpack.dump(meta, f)
+
+    with open(os.path.join(parser.data_dir, 'data.msgpack'), 'wb') as f:
+        msgpack.dump(data, f)
+
+    with open(os.path.join(parser.data_dir, 'sample.msgpack'), 'wb') as f:
+        msgpack.dump(sample, f)
+
+    logger.info(f'train   : {len(train)}')
+    logger.info(f'dev     : {len(dev)}')
+    logger.info(f'vocab   : {len(vocab)}')
+    logger.info(f'ctx_tags: {len(ctx_tags)}')
+    logger.info(f'ctx_ents: {len(ctx_ents)}')
+    logger.info(f'embed   : {embed_matrix.shape}')
+    logger.info('Preprocessing Done successfully')
 
 
 if __name__ == '__main__':
