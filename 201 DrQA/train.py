@@ -42,10 +42,10 @@ def load_dataset(opt, sample=False) -> Tuple[list, list, list, torch.Tensor]:
     _tqdm.update(1)
 
     # Set options
-    opt.vocab_size = embed_matrix.size(0)
-    opt.embed_dim = embed_matrix.size(1)
-    opt.pos_size = len(meta['ctx_tags'])  # the size of part of speech
-    opt.ner_size = len(meta['ctx_ents'])  # the size of named entity recognition tags
+    opt['vocab_size'] = embed_matrix.size(0)
+    opt['embed_dim'] = embed_matrix.size(1)
+    opt['pos_size'] = len(meta['ctx_tags'])  # the size of part of speech
+    opt['ner_size'] = len(meta['ctx_ents'])  # the size of named entity recognition tags
 
     train = data['train']
     dev = data['dev']
