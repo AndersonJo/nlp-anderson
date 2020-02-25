@@ -16,6 +16,11 @@ _data
 *.json
 *.npz
 *.pkl
+*.span
+*.txt
+*.context
+*.question
+*.answer
 cifar-10-batches-py
 *.h5
 joblib
