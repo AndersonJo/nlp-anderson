@@ -20,7 +20,7 @@ def init() -> Namespace:
     parser.add_argument('--data_src', type=str)
     parser.add_argument('--save_data', type=str, default='.data/data.pkl')
 
-    parser.add_argument('--max_len', type=int, default=100)
+    parser.add_argument('--max_seq_len', type=int, default=100)
     parser.add_argument('--min_word_freq', type=int, default=3, help='minimum word count')
     parser.add_argument('--share_vocab', action='store_true', default=True, help='Merge source vocab with target vocab')
 
@@ -57,15 +57,15 @@ def merge_source_and_target(src, trg):
 
 def main():
     opt = init()
-    max_len = opt.max_len
+    max_seq_len = opt.max_seq_len
     min_word_freq = opt.min_word_freq
 
     # Create Fields
     src, trg = create_torch_fields(opt)
 
-    # Data - max_len 값 이상 넘어가는 단어로 이루어진 문장을 제외 시킨다
+    # Data - max_seq_len 값 이상 넘어가는 단어로 이루어진 문장을 제외 시킨다
     def filter_with_length(x):
-        return len(x.src) <= max_len and len(x.trg) <= max_len
+        return len(x.src) <= max_seq_len and len(x.trg) <= max_seq_len
 
     train, val, test = torchtext.datasets.Multi30k.splits(exts=('.' + opt.lang_src, '.' + opt.lang_trg),
                                                           fields=(src, trg),
