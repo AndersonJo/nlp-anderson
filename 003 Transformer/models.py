@@ -32,6 +32,9 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1)].detach()  # constant matrix 이기 때문에 detach 시킨다
 
 
+#######################################################################################################################
+# Encoder
+#######################################################################################################################
 class Encoder(nn.Module):
     def __init__(self, vocab_size: int, embed_dim: int, padding_idx: int, n_layers: int, dropout: float = 0.1):
         """
@@ -53,6 +56,28 @@ class Encoder(nn.Module):
         self.layers = nn.ModuleList([EncoderLayer() for _ in range(n_layers)])
 
 
+class EncoderLayer(nn.Module):
+    def __init__(self, embed_dim: int, n_head: int):
+        super(EncoderLayer, self).__init__()
+        self.attn = MultiHeadAttention()
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, embed_dim: int, n_head: int, dropout: float = 0.1):
+        super(MultiHeadAttention, self).__init__()
+
+        self.embed_dim = embed_dim
+        self.n_head = n_head
+        self.dk = embed_dim // n_head
+        self.dv = embed_dim // n_head
+
+        self.linear_q = nn.Linear(embed_dim, embed_dim)
+        self.linear_v = nn.Linear(embed_dim, embed_dim)
+        self.linear_k = nn.Linear(embed_dim, embed_dim)
+
+        self.dropout = nn.Dropout(dropout)
+
+
 class Transformer(nn.Module):
 
     def __init__(self, vocab_size: int, padding_idx: int, embed_dim: int = 512):
@@ -63,4 +88,8 @@ class Transformer(nn.Module):
         """
         super(Transformer, self).__init__()
 
-        self.encoder = Encoder(vocab_size, embed_dim, padding_idx=padding_idx)
+        self.encoder = Encoder(vocab_size, embed_dim, padding_idx=padding_idx, n_layers=6)
+
+#######################################################################################################################
+# ETC
+#######################################################################################################################
