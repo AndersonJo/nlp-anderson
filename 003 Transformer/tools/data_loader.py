@@ -1,11 +1,13 @@
 import pickle
 from typing import Tuple
 
+from torchtext.vocab import Vocab
+
 from tools import const
 from torchtext.data import Dataset, BucketIterator
 
 
-def load_preprocessed_data(opt) -> Tuple[BucketIterator, BucketIterator]:
+def load_preprocessed_data(opt) -> Tuple[BucketIterator, BucketIterator, Vocab, Vocab]:
     batch_size = opt.batch_size
     device = opt.device
     data = pickle.load(open(opt.data_pkl, 'rb'))
@@ -26,4 +28,4 @@ def load_preprocessed_data(opt) -> Tuple[BucketIterator, BucketIterator]:
     train_iterator = BucketIterator(train, batch_size=batch_size, device=device, train=True)
     val_iterator = BucketIterator(val, batch_size=batch_size, device=device)
 
-    return train_iterator, val_iterator
+    return train_iterator, val_iterator, data['src'].vocab, data['trg'].vocab
