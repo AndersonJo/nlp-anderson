@@ -12,7 +12,9 @@ class Transformer(nn.Module):
 
     def __init__(self, embed_dim: int, src_vocab_size: int, trg_vocab_size: int,
                  src_pad_idx: int, trg_pad_idx: int,
-                 n_layers: int = 6, n_head: int = 8, d_ff: int = 2048, dropout: float = 0.1):
+                 n_layers: int = 6, n_head: int = 8, d_ff: int = 2048, dropout: float = 0.1,
+                 share_embed_weights: bool = True,
+                 share_embed_weights_to_output_linear: bool = True):
         """
         # Vocab
         :param src_vocab_size: the size of the source vocabulary
@@ -22,11 +24,31 @@ class Transformer(nn.Module):
 
         # Embedding
         :param embed_dim: embedding dimension. 512 is used in the paper
+        :param share_embed_weights: share target embedding weights with source embedding
+        :param share_embed_weights_to_output_linear: share target embedding weights with output linear weights
 
         # Transformer
         :param n_layers: the number of sub-layers
         :param n_head: the number of heads in Multi Head Attention
         :param d_ff: inner dimension of position-wise feed-forward
+
+        super(Transformer, self).__init__()
+
+        self.src_pad_idx = src_pad_idx
+        self.trg_pad_idx = trg_pad_idx
+
+        self.encoder = Encoder(src_vocab_size, embed_dim=embed_dim, n_head=n_head, d_ff=d_ff,
+                               pad_idx=src_pad_idx, n_layers=n_layers, dropout=dropout)
+        self.decoder = Decoder(trg_vocab_size, embed_dim=embed_dim, n_head=n_head, d_ff=d_ff,
+                               pad_idx=trg_pad_idx, n_layers=n_layers, dropout=dropout)
+
+        self.out_linear = nn.Linear(embed_dim, trg_vocab_size, bias=False)
+
+        self.logit_scale = 1
+        if share_embed_weights_to_output_linear:
+            # 다음은 논문에 나온 내용
+            # 3.4  Embeddings and Softmax
+            # We also use the usual learned linear transformation and so
 
         """
         super(Transformer, self).__init__()
@@ -39,17 +61,34 @@ class Transformer(nn.Module):
         self.decoder = Decoder(trg_vocab_size, embed_dim=embed_dim, n_head=n_head, d_ff=d_ff,
                                pad_idx=trg_pad_idx, n_layers=n_layers, dropout=dropout)
 
+        self.out_linear = nn.Linear(embed_dim, trg_vocab_size, bias=False)
+
+        self.logit_scale = 1
+        if share_embed_weights_to_output_linear:
+            # 다음은 논문에 나온 내용
+            # 3.4  Embeddings and Softmax
+            # We also use the usual learned linear transformation and softmax function to convert the decoder output
+            # to predicted next-token probabilities. In our model, we share the same weight matrix between
+            # the two embedding layers and the pre-softmax linear transformation, similar to [30].
+            # In the embedding layers, we multiply those weights by sqrt(d_model).
+            self.out_linear.weight = self.decoder.embed.weight
+            self.logit_scale = (embed_dim ** -0.5)
+
+        if share_embed_weights:
+            self.encoder.embed.weight = self.decoder.embed.weight
+
     def forward(self, src: torch.Tensor, trg: torch.Tensor):
         """
         :param src: (batch_size, maximum_sequence_length)
         :param trg: (batch_size, maximum_sequence_length)
+        :return (batch, seq_len, trg_vocab_size) ex.(256, 33, 9473)
         """
         src_mask, trg_mask = create_mask(src, trg, src_pad_idx=self.src_pad_idx, trg_pad_idx=self.trg_pad_idx)
 
         enc_output = self.encoder(src, src_mask)  # (batch, seq_len, embed_dim) like (256, 33, 512)
-        self.decoder(trg, trg_mask, enc_output, src_mask)
-        import ipdb
-        ipdb.set_trace()
+        dec_output = self.decoder(trg, trg_mask, enc_output, src_mask)  # (batch, seq_len, embed_dim)
+        output = self.out_linear(dec_output) * self.logit_scale  # (batch, seq_len, trg_vocab_size) like (256, 33, 9473)
+        return output
 
 
 class Encoder(nn.Module):
@@ -113,7 +152,6 @@ class Decoder(nn.Module):
         :param d_ff: inner dimension of position-wise feed-forward
         :param pad_idx: target padding index
         :param n_layers: the number of sub-layers
-
         """
         super(Decoder, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_dim, padding_idx=pad_idx)
@@ -135,4 +173,5 @@ class Decoder(nn.Module):
             dec_output = dec_layer(dec_output, trg_mask, enc_output, enc_mask)
 
         dec_output = self.layer_norm(dec_output)
+
         return dec_output
