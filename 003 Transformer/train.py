@@ -54,7 +54,7 @@ def train_per_epoch(opt: Namespace,
     start_time = datetime.now()
     total_loss = total_word = total_corrected_word = 0
 
-    for i, batch in tqdm(enumerate(train_data), leave=False):
+    for i, batch in tqdm(enumerate(train_data), total=len(train_data), leave=False):
         # Prepare data
         #  - src_input: <sos>, 외국단어_1, 외국단어_2, ..., 외국단어_n, <eos>, pad_1, ..., pad_n
         #  - trg_inprint_performancesput:  (256, 33) -> <sos>, 영어_1, 영어_2, ..., 영어_n, <eos>, pad_1, ..., pad_n-1
@@ -77,8 +77,6 @@ def train_per_epoch(opt: Namespace,
         total_word += n_word
         total_corrected_word += n_corrected
 
-        if i > 10:
-            break
     loss_per_word = total_loss / total_word
     accuracy = total_corrected_word / total_word
 
@@ -123,7 +121,7 @@ def visualize_performance(label, epoch, total_loss, total_word, total_corrected_
                           total_seconds, loss_per_word, accuracy):
     mins = int(total_seconds / 60)
     secs = int(total_seconds % 60)
-    print(f'{label:<8} {mins:02}:{secs:02} | epoch:{epoch:2} | loss:{total_loss / 100:7.2f} | acc:{accuracy:7.4f} | '
+    print(f'{label:<8} {mins:02}:{secs:02} | epoch:{epoch + 1:02} | loss:{total_loss:10.2f} | acc:{accuracy:7.4f} | '
           f'loss_per_word:{loss_per_word:5.2f} | n:{total_word:5} | corrected:{total_corrected_word:5}')
 
 
