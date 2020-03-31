@@ -29,16 +29,16 @@ class ScheduledAdam(Adam):
         self.embed_dim = embed_dim
         self.init_lr = init_lr
         self.warmup_step = warmup_steps
-        self.step = 0
+        self.n_step = 0
 
     def step(self, **kwargs):
         self._update_learning_rate()
         super().step()
 
     def _update_learning_rate(self):
-        self.step += 1
+        self.n_step += 1
 
-        step, warmup_step = self.step, self.warmup_step
+        step, warmup_step = self.n_step, self.warmup_step
         init_lr = self.init_lr
         d_model = self.embed_dim
 
