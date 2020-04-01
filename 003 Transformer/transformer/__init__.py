@@ -1,8 +1,10 @@
+import torch
+
 from transformer.models import Transformer
 
 
 def get_transformer(opt) -> Transformer:
-    # Encoder hyper-parameters
+    checkpoint = torch.load(opt.)
     model = Transformer(embed_dim=opt.embed_dim,
                         src_vocab_size=opt.src_vocab_size,
                         trg_vocab_size=opt.trg_vocab_size,
