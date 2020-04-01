@@ -30,6 +30,7 @@ class ScheduledAdam(Adam):
         self.init_lr = init_lr
         self.warmup_step = warmup_steps
         self.n_step = 0
+        self.lr = 0
 
     def step(self, **kwargs):
         self._update_learning_rate()
@@ -42,7 +43,7 @@ class ScheduledAdam(Adam):
         init_lr = self.init_lr
         d_model = self.embed_dim
 
-        lr = init_lr * (d_model ** -0.5) * min(step ** -0.5, step * warmup_step ** -1.5)
+        self.lr = init_lr * (d_model ** -0.5) * min(step ** -0.5, step * warmup_step ** -1.5)
 
         for param_group in self.param_groups:
             param_group['lr'] = lr

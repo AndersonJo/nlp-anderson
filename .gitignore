@@ -35,6 +35,7 @@ imdb_full.pkl
 _network
 _network_backup
 _tfmodel
+checkpoints
 
 # R
 .Rhistory
