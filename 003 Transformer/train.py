@@ -52,19 +52,23 @@ def train(opt: Namespace, model: Transformer, optimizer: ScheduledAdam):
         # Training and Evaluation
         _t = train_per_epoch(opt, model, optimizer, train_data)
         _v = evaluate_epoch(opt, model, val_data)
-        show_performance(epoch=epoch, step=optimizer.n_step, t=_t, v=_v)
 
         # Checkpoint
+        is_checkpointed = False
         if _v['total_loss'] < min_loss:
             min_loss = _v['total_loss']
             checkpoint = {'epoch': epoch,
                           'opt': opt,
-                          'model': model,
+                          'weights': model.state_dict(),
                           'loss': min_loss,
                           '_t': _t,
                           '_v': _v}
-            model_name = os.path.join(opt.checkpoint_path, 'checkpoint_{val_loss:.4f}.chkpt')
+            model_name = os.path.join(opt.checkpoint_path, f'checkpoint_{min_loss:.4f}.chkpt')
             torch.save(checkpoint, model_name)
+            is_checkpointed = True
+
+        # Print performance
+        _show_performance(epoch=epoch, step=optimizer.n_step, lr=optimizer.lr, t=_t, v=_v, checkpoint=is_checkpointed)
 
 
 def train_per_epoch(opt: Namespace,
@@ -177,7 +181,7 @@ def calculate_loss(y_pred, y_true, trg_pad_idx):
     return F.cross_entropy(y_pred, y_true, ignore_index=trg_pad_idx, reduction='sum')
 
 
-def show_performance(epoch, step, t, v):
+def _show_performance(epoch, step, lr, t, v, checkpoint):
     mins = int(t['total_seconds'] / 60)
     secs = int(t['total_seconds'] % 60)
 
@@ -191,7 +195,8 @@ def show_performance(epoch, step, t, v):
 
     print(f'[{epoch + 1:02}] {mins:02}:{secs:02} | loss:{t_loss:10.2f}/{v_loss:10.2f} | '
           f'acc:{t_accuracy:7.4f}/{v_accuracy:7.4f} | '
-          f'loss_per_word:{t_loss_per_word:5.2f}/{v_loss_per_word:5.2f} | step:{step}')
+          f'loss_per_word:{t_loss_per_word:5.2f}/{v_loss_per_word:5.2f} | step:{step:5} | lr:{lr:6.4f}'
+          f'{" | checkpoint" if checkpoint else ""}')
 
 
 def main():
