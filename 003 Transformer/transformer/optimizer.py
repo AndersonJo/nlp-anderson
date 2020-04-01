@@ -46,4 +46,4 @@ class ScheduledAdam(Adam):
         self.lr = init_lr * (d_model ** -0.5) * min(step ** -0.5, step * warmup_step ** -1.5)
 
         for param_group in self.param_groups:
-            param_group['lr'] = lr
+            param_group['lr'] = self.lr
