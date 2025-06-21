@@ -33,8 +33,14 @@ class SentenceBERT(nn.Module):
         """
         Mean pooling: calculate average considering attention mask
         """
+
+        # [batch_size, seq_len] → [batch_size, seq_len, hidden_dim]
+        # (64, 768) -> (64, 160, 768)
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+
+        # [batch_size, hidden_dim] (32, 768) = token_embeddings (32, 160, 768) * input_mask_expanded (32, 160, 1)
         sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, dim=1)
+        # [batch_size, hidden_dim] (32, 768) = sum_embeddings (32, 768) / input_mask_expanded.sum(dim=1) (32, 768)
         sum_mask = torch.clamp(input_mask_expanded.sum(dim=1), min=1e-9)
         return sum_embeddings / sum_mask
     
@@ -55,9 +61,8 @@ class SentenceBERT(nn.Module):
         embeddings_2 = self.dropout(embeddings_2)
         
         # Calculate absolute difference between sentence pairs (SNLI paper method: u, v, |u-v|)
-        diff = torch.abs(embeddings_1 - embeddings_2)
-        
         # Concatenate for classification (paper implementation: u, v, |u-v|)
+        diff = torch.abs(embeddings_1 - embeddings_2)
         combined = torch.cat([embeddings_1, embeddings_2, diff], dim=1)
         
         # Classification (input dimension: 3n → k)

@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-from sentence_bert_model import SentenceBERT
+from model import SentenceBERT
 import numpy as np
 
 class SentenceBERTInference:

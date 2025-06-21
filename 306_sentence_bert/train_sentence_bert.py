@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from sentence_bert_model import (
+from model import (
     SentenceBERT, SNLIDataset, TripletDataset,
     compute_similarity, triplet_loss, cosine_triplet_loss
 )
@@ -498,20 +498,20 @@ def test_similarity_functionality(model, device):
 
 def main():
     parser = argparse.ArgumentParser(description='Train Sentence BERT with TensorBoard logging')
-    parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch size')
+    parser.add_argument('--epochs', type=int, default=5, help='Number of training epochs')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--lr', type=float, default=2e-5, help='Learning rate')
     parser.add_argument('--log_dir', type=str, default=None, help='TensorBoard log directory')
     parser.add_argument('--no_tensorboard', action='store_true', help='Disable TensorBoard server (enabled by default)')
-    parser.add_argument('--max_length', type=int, default=128, help='Maximum sequence length')
+    parser.add_argument('--max_length', type=int, default=160, help='Maximum sequence length')
     parser.add_argument('--train_samples', type=int, default=0, help='Number of training samples to use')
     parser.add_argument('--val_samples', type=int, default=0, help='Number of validation samples to use')
     parser.add_argument('--test_samples', type=int, default=0, help='Number of test samples to use')
-    parser.add_argument('--save_model', action='store_true', help='Save trained model')
+    parser.add_argument('--save_model', action='store_true', default=True, help='Save trained model')
     parser.add_argument('--test_similarity', action='store_true', help='Test sentence similarity functionality')
     parser.add_argument('--triplet', action='store_true', default=True, help='Use triplet loss instead of classification')
     parser.add_argument('--margin', type=float, default=1.0, help='Margin for triplet loss')
-    parser.add_argument('--use_cosine', action='store_true', default=True, help='Use cosine distance for triplet loss')
+    parser.add_argument('--use_cosine', action='store_true', help='Use cosine distance for triplet loss')
     args = parser.parse_args()
 
     # Device setup

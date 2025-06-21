@@ -36,6 +36,7 @@ _network
 _network_backup
 _tfmodel
 checkpoints
+runs
 
 # R
 .Rhistory
