@@ -23,7 +23,8 @@ echo "Best performance and scalability for 8 GPUs"
 echo "Each GPU gets its own process and gradients are synchronized"
 echo ""
 
-# DDP Training command
+# DDP Training command - Triplet Loss (Default)
+echo "Running Triplet Loss Training with DDP..."
 python train_sentence_bert.py \
     --gpu_strategy ddp \
     --gpu_ids "0,1,2,3,4,5,6,7" \
@@ -37,6 +38,29 @@ python train_sentence_bert.py \
     --train_samples 50000 \
     --val_samples 5000 \
     --test_samples 5000
+
+echo ""
+echo "✅ Triplet Loss DDP Training completed!"
+
+# Optional: Classification Training with DDP
+echo ""
+echo "📋 Alternative: Classification Training with DDP"
+echo "================================================"
+echo "Uncomment below to run classification training instead"
+echo ""
+
+# Uncomment to run classification training
+# python train_sentence_bert.py \
+#     --gpu_strategy ddp \
+#     --gpu_ids "0,1,2,3,4,5,6,7" \
+#     --batch_size 64 \
+#     --epochs 3 \
+#     --lr 2e-5 \
+#     --max_length 128 \
+#     --use_amp \
+#     --train_samples 30000 \
+#     --val_samples 3000 \
+#     --test_samples 3000
 
 echo ""
 echo "✅ DDP Training completed!"
