@@ -343,6 +343,207 @@ def train_sentence_bert_classification_multi_gpu(model, train_loader, val_loader
     return train_losses, val_losses, val_accuracies
 
 
+def train_sentence_bert_triplet_multi_gpu(model, train_loader, val_loader, device, epochs=3, lr=2e-5,
+                                         log_dir=None, margin=1.0, use_cosine=False, use_amp=True, 
+                                         rank=0, world_size=1):
+    """
+    Multi-GPU Sentence BERT model training function using triplet loss
+    """
+    from model import triplet_loss, cosine_triplet_loss
+    
+    # Setup model for multi-GPU training
+    if world_size > 1:
+        model = DDP(model, device_ids=[rank])
+    
+    # Mixed precision scaler
+    scaler = GradScaler() if use_amp else None
+
+    # TensorBoard setup (only on rank 0)
+    if rank == 0:
+        if log_dir is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            log_dir = f"runs/sentence_bert_triplet_multi_gpu_{timestamp}"
+        writer = SummaryWriter(log_dir)
+        print(f"TensorBoard logs will be saved to: {log_dir}")
+        print(f"To view logs, run: tensorboard --logdir={log_dir}")
+        print(f"Using {'cosine' if use_cosine else 'euclidean'} triplet loss with margin={margin}")
+        print(f"Mixed Precision: {'Enabled' if use_amp else 'Disabled'}")
+    else:
+        writer = None
+
+    # Loss function and optimizer
+    if use_cosine:
+        criterion = lambda a, p, n: cosine_triplet_loss(a, p, n, margin=margin)
+    else:
+        criterion = lambda a, p, n: triplet_loss(a, p, n, margin=margin)
+
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=0.01)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
+
+    # Training history
+    train_losses = []
+    val_losses = []
+
+    if rank == 0:
+        print("Starting multi-GPU triplet training...")
+        print(f"Using {world_size} GPU(s)")
+
+    for epoch in range(epochs):
+        # Set epoch for distributed sampler
+        if hasattr(train_loader.sampler, 'set_epoch'):
+            train_loader.sampler.set_epoch(epoch)
+
+        model.train()
+        total_train_loss = 0
+
+        # Training loop
+        if rank == 0:
+            train_pbar = tqdm(train_loader, desc=f'Epoch {epoch + 1}/{epochs} [Train]')
+        else:
+            train_pbar = train_loader
+
+        for batch_idx, batch in enumerate(train_pbar):
+            input_ids_a = batch['input_ids_a'].to(device, non_blocking=True)
+            attention_mask_a = batch['attention_mask_a'].to(device, non_blocking=True)
+            input_ids_p = batch['input_ids_p'].to(device, non_blocking=True)
+            attention_mask_p = batch['attention_mask_p'].to(device, non_blocking=True)
+            input_ids_n = batch['input_ids_n'].to(device, non_blocking=True)
+            attention_mask_n = batch['attention_mask_n'].to(device, non_blocking=True)
+
+            optimizer.zero_grad()
+
+            # Mixed precision forward pass
+            if use_amp:
+                with autocast():
+                    embeddings_a, embeddings_p, embeddings_n = model.module.forward_triplet(
+                        input_ids_a, attention_mask_a,
+                        input_ids_p, attention_mask_p,
+                        input_ids_n, attention_mask_n
+                    ) if hasattr(model, 'module') else model.forward_triplet(
+                        input_ids_a, attention_mask_a,
+                        input_ids_p, attention_mask_p,
+                        input_ids_n, attention_mask_n
+                    )
+                    loss = criterion(embeddings_a, embeddings_p, embeddings_n)
+                
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                embeddings_a, embeddings_p, embeddings_n = model.module.forward_triplet(
+                    input_ids_a, attention_mask_a,
+                    input_ids_p, attention_mask_p,
+                    input_ids_n, attention_mask_n
+                ) if hasattr(model, 'module') else model.forward_triplet(
+                    input_ids_a, attention_mask_a,
+                    input_ids_p, attention_mask_p,
+                    input_ids_n, attention_mask_n
+                )
+                loss = criterion(embeddings_a, embeddings_p, embeddings_n)
+                loss.backward()
+                optimizer.step()
+
+            total_train_loss += loss.item()
+
+            # TensorBoard: batch loss logging (only on rank 0)
+            if writer is not None:
+                global_step = epoch * len(train_loader) + batch_idx
+                writer.add_scalar('Loss/Train_Batch', loss.item(), global_step)
+
+            if rank == 0:
+                train_pbar.set_postfix({'loss': loss.item()})
+
+        # Synchronize training loss across all GPUs
+        if world_size > 1:
+            train_loss_tensor = torch.tensor(total_train_loss).to(device)
+            dist.all_reduce(train_loss_tensor, op=dist.ReduceOp.SUM)
+            train_loss = train_loss_tensor.item() / (len(train_loader) * world_size)
+        else:
+            train_loss = total_train_loss / len(train_loader)
+
+        train_losses.append(train_loss)
+
+        # Validation
+        model.eval()
+        total_val_loss = 0
+
+        with torch.no_grad():
+            if rank == 0:
+                val_pbar = tqdm(val_loader, desc=f'Epoch {epoch + 1}/{epochs} [Val]')
+            else:
+                val_pbar = val_loader
+
+            for batch in val_pbar:
+                input_ids_a = batch['input_ids_a'].to(device, non_blocking=True)
+                attention_mask_a = batch['attention_mask_a'].to(device, non_blocking=True)
+                input_ids_p = batch['input_ids_p'].to(device, non_blocking=True)
+                attention_mask_p = batch['attention_mask_p'].to(device, non_blocking=True)
+                input_ids_n = batch['input_ids_n'].to(device, non_blocking=True)
+                attention_mask_n = batch['attention_mask_n'].to(device, non_blocking=True)
+
+                if use_amp:
+                    with autocast():
+                        embeddings_a, embeddings_p, embeddings_n = model.module.forward_triplet(
+                            input_ids_a, attention_mask_a,
+                            input_ids_p, attention_mask_p,
+                            input_ids_n, attention_mask_n
+                        ) if hasattr(model, 'module') else model.forward_triplet(
+                            input_ids_a, attention_mask_a,
+                            input_ids_p, attention_mask_p,
+                            input_ids_n, attention_mask_n
+                        )
+                        loss = criterion(embeddings_a, embeddings_p, embeddings_n)
+                else:
+                    embeddings_a, embeddings_p, embeddings_n = model.module.forward_triplet(
+                        input_ids_a, attention_mask_a,
+                        input_ids_p, attention_mask_p,
+                        input_ids_n, attention_mask_n
+                    ) if hasattr(model, 'module') else model.forward_triplet(
+                        input_ids_a, attention_mask_a,
+                        input_ids_p, attention_mask_p,
+                        input_ids_n, attention_mask_n
+                    )
+                    loss = criterion(embeddings_a, embeddings_p, embeddings_n)
+
+                total_val_loss += loss.item()
+
+                if rank == 0:
+                    val_pbar.set_postfix({'loss': loss.item()})
+
+        # Synchronize validation loss
+        if world_size > 1:
+            val_loss_tensor = torch.tensor(total_val_loss).to(device)
+            dist.all_reduce(val_loss_tensor, op=dist.ReduceOp.SUM)
+            val_loss = val_loss_tensor.item() / (len(val_loader) * world_size)
+        else:
+            val_loss = total_val_loss / len(val_loader)
+
+        val_losses.append(val_loss)
+
+        # Learning rate update
+        scheduler.step()
+        current_lr = scheduler.get_last_lr()[0]
+
+        # TensorBoard logging (only on rank 0)
+        if writer is not None:
+            writer.add_scalar('Loss/Train_Epoch', train_loss, epoch)
+            writer.add_scalar('Loss/Val_Epoch', val_loss, epoch)
+            writer.add_scalar('Learning_Rate', current_lr, epoch)
+
+        if rank == 0:
+            print(f'Epoch {epoch + 1}/{epochs}:')
+            print(f'  Train Loss: {train_loss:.4f}')
+            print(f'  Val Loss: {val_loss:.4f}')
+            print(f'  Learning Rate: {current_lr:.2e}')
+            print('-' * 50)
+
+    # Close TensorBoard
+    if writer is not None:
+        writer.close()
+
+    return train_losses, val_losses
+
+
 def train_sentence_bert_classification(model, train_loader, val_loader, device, epochs=3, lr=2e-5, log_dir=None):
     """
     Sentence BERT model training function for classification (with TensorBoard logging)
@@ -852,11 +1053,22 @@ def distributed_main(rank, world_size, args):
         print("Starting distributed training...")
     
     if args.triplet:
-        # TODO: Implement distributed triplet training
-        if rank == 0:
-            print("Distributed triplet training not yet implemented. Using single GPU fallback.")
-        cleanup_distributed()
-        return
+        # Triplet training with DDP
+        train_losses, val_losses = train_sentence_bert_triplet_multi_gpu(
+            model=model,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            device=device,
+            epochs=args.epochs,
+            lr=args.lr,
+            log_dir=args.log_dir,
+            margin=args.margin,
+            use_cosine=args.use_cosine,
+            use_amp=args.use_amp,
+            rank=rank,
+            world_size=world_size
+        )
+        val_accuracies = None
     else:
         # Classification training with DDP
         train_losses, val_losses, val_accuracies = train_sentence_bert_classification_multi_gpu(
@@ -874,23 +1086,30 @@ def distributed_main(rank, world_size, args):
     
     # Save model (only on rank 0)
     if rank == 0 and args.save_model:
-        model_save_path = 'sentence_bert_snli_multi_gpu_model.pth'
+        model_save_path = f'sentence_bert_snli_{"triplet" if args.triplet else "classification"}_multi_gpu_model.pth'
         # Extract the actual model from DDP wrapper
         model_to_save = model.module if hasattr(model, 'module') else model
         save_dict = {
             'model_state_dict': model_to_save.state_dict(),
             'train_losses': train_losses,
             'val_losses': val_losses,
-            'val_accuracies': val_accuracies,
             'hyperparameters': {
                 'batch_size': args.batch_size,
                 'max_length': args.max_length,
                 'epochs': args.epochs,
                 'learning_rate': args.lr,
                 'world_size': world_size,
-                'use_amp': args.use_amp
+                'use_amp': args.use_amp,
+                'training_mode': 'triplet' if args.triplet else 'classification'
             }
         }
+        
+        if val_accuracies is not None:
+            save_dict['val_accuracies'] = val_accuracies
+        if args.triplet:
+            save_dict['margin'] = args.margin
+            save_dict['use_cosine'] = args.use_cosine
+            
         torch.save(save_dict, model_save_path)
         print(f"\nModel saved as '{model_save_path}'")
     
