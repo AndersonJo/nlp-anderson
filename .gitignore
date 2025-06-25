@@ -25,6 +25,7 @@ cifar-10-batches-py
 *.h5
 joblib
 glove.840B.300d.txt
+*.pth
 
 # Specific Data
 imdb_full.pkl
