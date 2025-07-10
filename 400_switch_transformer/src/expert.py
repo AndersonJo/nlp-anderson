@@ -1,11 +1,12 @@
 import torch
 from torch import nn
+from torch import Tensor
 
 class Expert(nn.Module):
     """
     A simple feed-forward network, which will be used as an expert in the MoE layer.
     """
-    def __init__(self, d_model, d_ff):
+    def __init__(self, d_model: int, d_ff: int) -> None:
         super().__init__()
         self.net = nn.Sequential(
             nn.Linear(d_model, d_ff),
@@ -13,5 +14,5 @@ class Expert(nn.Module):
             nn.Linear(d_ff, d_model)
         )
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         return self.net(x)

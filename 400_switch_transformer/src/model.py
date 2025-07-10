@@ -1,10 +1,13 @@
 import torch
 from torch import nn
+from torch import Tensor
+from typing import Optional, Tuple
 from .transformer_encoder import SwitchTransformerEncoderLayer, SwitchTransformerEncoder
 import math
 
+
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, dropout=0.1, max_len=5000):
+    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 5000):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
 
@@ -16,21 +19,23 @@ class PositionalEncoding(nn.Module):
         pe = pe.unsqueeze(0).transpose(0, 1)
         self.register_buffer('pe', pe)
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         x = x + self.pe[:x.size(0), :]
         return self.dropout(x)
 
+
 class SwitchTransformerLM(nn.Module):
-    def __init__(self, ntoken, d_model, nhead, d_ff, num_experts, num_layers, dropout=0.5):
+    def __init__(self, ntoken: int, d_model: int, nhead: int, d_ff: int, num_experts: int, num_layers: int,
+                 dropout: float = 0.5):
         super().__init__()
         self.model_type = 'Transformer'
         self.d_model = d_model
         self.encoder = nn.Embedding(ntoken, d_model)
         self.pos_encoder = PositionalEncoding(d_model, dropout)
-        
+
         encoder_layer = SwitchTransformerEncoderLayer(d_model, nhead, d_ff, num_experts, dropout)
         self.transformer_encoder = SwitchTransformerEncoder(encoder_layer, num_layers)
-        
+
         self.decoder = nn.Linear(d_model, ntoken)
 
         self.init_weights()
@@ -41,11 +46,11 @@ class SwitchTransformerLM(nn.Module):
         self.decoder.bias.data.zero_()
         self.decoder.weight.data.uniform_(-initrange, initrange)
 
-    def forward(self, src, src_mask=None):
+    def forward(self, src: Tensor, src_mask: Optional[Tensor] = None) -> Tuple[Tensor, Tensor]:
         src = self.encoder(src) * math.sqrt(self.d_model)
         src = self.pos_encoder(src)
-        
+
         output, load_balancing_loss = self.transformer_encoder(src, mask=src_mask)
-        
+
         output = self.decoder(output)
         return output, load_balancing_loss

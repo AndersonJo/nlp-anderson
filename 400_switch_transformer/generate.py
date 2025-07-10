@@ -16,7 +16,20 @@ model = SwitchTransformerLM(
     ntokens, hp.D_MODEL, hp.NHEAD, hp.D_FF, 
     hp.NUM_EXPERTS, hp.NUM_LAYERS, hp.DROPOUT
 )
-model.load_state_dict(torch.load(hp.MODEL_PATH, map_location=device))
+
+# Load state dict and handle torch.compile prefixes
+state_dict = torch.load(hp.MODEL_PATH, map_location=device, weights_only=True)
+
+# Remove '_orig_mod.' prefix from keys if present (from torch.compile)
+cleaned_state_dict = {}
+for key, value in state_dict.items():
+    if key.startswith('_orig_mod.'):
+        cleaned_key = key[len('_orig_mod.'):]
+        cleaned_state_dict[cleaned_key] = value
+    else:
+        cleaned_state_dict[key] = value
+
+model.load_state_dict(cleaned_state_dict)
 model.to(device)
 model.eval()
 
