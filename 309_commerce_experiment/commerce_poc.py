@@ -232,7 +232,7 @@ class LocalLLMClient:
 class CommercePOC:
     def __init__(self, model_name: str = None):
         self.searcher = ProductSearcher()
-        self.llm_client = LocalLLMClient(model_name=model_name)
+        self.llm_client = LocalLLMClient(model_name=model_name or "meta-llama/Llama-3.1-8B-Instruct")
 
     def run(self):
         """Run the terminal application"""
