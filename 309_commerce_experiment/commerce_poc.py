@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Commerce POC using Kimi LLM for product comparison
-Testing auto-push hooks
+Commerce POC using Kimi LLM for product comparison  
+Hook test - fifth attempt with ../.claude location
 """
 
 import csv
