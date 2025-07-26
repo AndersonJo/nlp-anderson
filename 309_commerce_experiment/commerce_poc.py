@@ -75,8 +75,14 @@ class ProductSearcher:
 
 
 class LocalLLMClient:
-    def __init__(self, model_name: str = "deepseek-ai/DeepSeek-R1-Distill-Llama-70B"):
-        self.model_name = model_name or "deepseek-ai/DeepSeek-R1-Distill-Llama-70B"
+    def __init__(self, model_name: str = "meta-llama/Llama-3.1-8B-Instruct"):
+        """
+        - production: deepseek-ai/DeepSeek-R1-Distill-Llama-70B
+        - development: meta-llama/Llama-3.1-8B-Instruct
+
+        :param model_name:
+        """
+        self.model_name = model_name
         self.model = None
         self.tokenizer = None
         self.device = None
