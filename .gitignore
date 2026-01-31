@@ -1,48 +1,68 @@
-# IDE
-.idea
-.claude
-_site
+# --- IDE & System ---
+.idea/
+.vscode/
+.claude/
+.DS_Store
+_site/
+*.swp
 
+# --- Python & Environment ---
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+.env
 
-# Python
-*.pyc
-.ipynb_checkpoints
+# --- Data & Weights (Large Files) ---
+# 특정 디렉토리 전체 차단
+**/_data/
+**/data/
+**/cache/
+**/checkpoints/
+**/runs/
 
-# Data
-_data
-*.alz
-*.answer
-*.context
-*.data
-*.gz
-*.h5
-*.json
-*.npz
+# 모델 및 대용량 바이너리 확장자
 *.pkl
 *.pt
 *.pth
-*.question
 *.safetensors
-*.span
-*.txt
-*.zip
-cifar-10-batches-py
-glove.840B.300d.txt
-joblib
-**/cache/
-**/data/
-
-# Specific Data
-imdb_full.pkl
-
-# TensorFlow Model
+*.bin
+*.onnx
 *.model
 *.tfmodel
-_network
-_network_backup
-_tfmodel
-checkpoints
-runs
+*.joblib
+*.h5
+*.npz
 
-# R
+# 압축 파일
+*.zip
+*.gz
+*.tar
+*.alz
+*.7z
+
+# --- NLP & Specific Datasets ---
+# 데이터셋 폴더 및 특정 파일
+cifar-10-batches-py/
+glove.*.txt
+*.context
+*.answer
+*.question
+*.span
+# 주의: 모든 .txt를 막으면 README.txt 등도 막힐 수 있으므로 필요시 조정하세요.
+# *.txt
+
+# --- TensorFlow & Log ---
+_network/
+_network_backup/
+_tfmodel/
+*.ckpt
+*.ckpt.*
+
+# --- R ---
 .Rhistory
+.RData
+.Ruserdata
