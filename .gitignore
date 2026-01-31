@@ -29,6 +29,8 @@ _data
 cifar-10-batches-py
 glove.840B.300d.txt
 joblib
+**/cache/
+**/data/
 
 # Specific Data
 imdb_full.pkl
