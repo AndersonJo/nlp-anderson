@@ -10,23 +10,25 @@ _site
 
 # Data
 _data
-*.gz
-*.zip
 *.alz
+*.answer
+*.context
 *.data
+*.gz
+*.h5
 *.json
 *.npz
 *.pkl
+*.pt
+*.pth
+*.question
+*.safetensors
 *.span
 *.txt
-*.context
-*.question
-*.answer
+*.zip
 cifar-10-batches-py
-*.h5
-joblib
 glove.840B.300d.txt
-*.pth
+joblib
 
 # Specific Data
 imdb_full.pkl
