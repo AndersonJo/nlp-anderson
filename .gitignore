@@ -56,9 +56,9 @@ glove.*.txt
 # *.txt
 
 # --- TensorFlow & Log ---
-_network/
-_network_backup/
-_tfmodel/
+**/_network/
+**/_network_backup/
+**/_tfmodel/
 *.ckpt
 *.ckpt.*
 
