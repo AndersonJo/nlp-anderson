@@ -1,0 +1,227 @@
+2025-08-11 21:48:07,275 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-11 21:48:13,191 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 21:48:13,192 - __main__ - INFO -   - Calculator
+2025-08-11 21:48:13,192 - __main__ - INFO -   - QA
+2025-08-11 21:48:13,192 - __main__ - INFO -   - Search
+2025-08-11 21:48:13,192 - __main__ - INFO -   - Calendar
+2025-08-11 21:48:13,192 - __main__ - INFO -   - Translator
+2025-08-11 21:48:13,192 - __main__ - INFO -   - Wikipedia
+2025-08-11 21:48:13,192 - __main__ - INFO - Loaded 30 training examples
+2025-08-11 21:48:13,192 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-11 21:48:13,192 - training - INFO - Starting Toolformer training...
+2025-08-11 21:48:13,192 - root - INFO - Generating augmented dataset with API calls...
+2025-08-11 21:49:13,875 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-08-11 22:04:43,882 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-11 22:04:46,049 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 22:04:46,050 - __main__ - INFO -   - Calculator
+2025-08-11 22:04:46,050 - __main__ - INFO -   - QA
+2025-08-11 22:04:46,050 - __main__ - INFO -   - Search
+2025-08-11 22:04:46,050 - __main__ - INFO -   - Calendar
+2025-08-11 22:04:46,050 - __main__ - INFO -   - Translator
+2025-08-11 22:04:46,050 - __main__ - INFO -   - Wikipedia
+2025-08-11 22:04:46,050 - __main__ - INFO - Loaded 30 training examples
+2025-08-11 22:04:46,050 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-11 22:04:46,050 - training - INFO - Starting Toolformer training...
+2025-08-11 22:04:46,050 - root - INFO - Generating augmented dataset with API calls...
+2025-08-11 22:05:45,663 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-08-11 22:24:51,177 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-11 22:24:53,422 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 22:24:53,422 - __main__ - INFO -   - Calculator
+2025-08-11 22:24:53,422 - __main__ - INFO -   - QA
+2025-08-11 22:24:53,422 - __main__ - INFO -   - Search
+2025-08-11 22:24:53,423 - __main__ - INFO -   - Calendar
+2025-08-11 22:24:53,423 - __main__ - INFO -   - Translator
+2025-08-11 22:24:53,423 - __main__ - INFO -   - Wikipedia
+2025-08-11 22:24:53,423 - __main__ - INFO - Loaded 30 training examples
+2025-08-11 22:24:53,423 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-11 22:24:53,423 - training - INFO - Starting Toolformer training...
+2025-08-11 22:24:53,423 - root - INFO - Generating augmented dataset with API calls...
+2025-08-11 22:25:53,203 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-08-11 22:25:53,277 - training - INFO - Starting epoch 1/1
+2025-08-11 22:41:34,948 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-11 22:41:37,161 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 22:41:37,161 - __main__ - INFO -   - Calculator
+2025-08-11 22:41:37,161 - __main__ - INFO -   - QA
+2025-08-11 22:41:37,161 - __main__ - INFO -   - Search
+2025-08-11 22:41:37,161 - __main__ - INFO -   - Calendar
+2025-08-11 22:41:37,161 - __main__ - INFO -   - Translator
+2025-08-11 22:41:37,161 - __main__ - INFO -   - Wikipedia
+2025-08-11 22:41:37,161 - __main__ - INFO - Loaded 30 training examples
+2025-08-11 22:41:37,161 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-11 22:41:37,161 - training - INFO - Starting Toolformer training...
+2025-08-11 22:41:37,161 - root - INFO - Generating augmented dataset with API calls...
+2025-08-11 22:42:36,529 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-08-11 22:42:36,607 - training - INFO - Starting epoch 1/2
+2025-08-11 22:44:32,281 - training - INFO - Epoch 1 completed. Average loss: 2.3063
+2025-08-11 22:44:32,281 - training - INFO - Starting epoch 2/2
+2025-08-11 22:46:24,904 - training - INFO - Epoch 2 completed. Average loss: 1.3123
+2025-08-11 22:46:24,904 - training - INFO - Training completed!
+2025-08-11 22:46:24,905 - __main__ - INFO - Training completed!
+2025-08-11 22:46:25,206 - __main__ - INFO - Model saved to checkpoints/toolformer.pt
+2025-08-11 22:54:42,821 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-11 22:54:45,259 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 22:54:45,259 - __main__ - INFO -   - Calculator
+2025-08-11 22:54:45,259 - __main__ - INFO -   - QA
+2025-08-11 22:54:45,259 - __main__ - INFO -   - Search
+2025-08-11 22:54:45,259 - __main__ - INFO -   - Calendar
+2025-08-11 22:54:45,259 - __main__ - INFO -   - Translator
+2025-08-11 22:54:45,259 - __main__ - INFO -   - Wikipedia
+2025-08-11 22:54:45,259 - __main__ - INFO - Loaded 30 training examples
+2025-08-11 22:54:45,259 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-11 22:54:45,259 - training - INFO - Starting Toolformer training...
+2025-08-11 22:54:45,259 - root - INFO - Generating augmented dataset with API calls...
+2025-08-11 22:55:46,433 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-08-11 22:55:46,510 - training - INFO - Starting epoch 1/20
+2025-08-11 22:57:40,954 - training - INFO - Epoch 1 completed. Average loss: 2.3063
+2025-08-11 22:57:40,954 - training - INFO - Starting epoch 2/20
+2025-08-11 22:59:37,421 - training - INFO - Epoch 2 completed. Average loss: 1.3123
+2025-08-11 22:59:37,422 - training - INFO - Starting epoch 3/20
+2025-08-11 23:01:10,084 - training - INFO - Step 100, Loss: 1.1872
+2025-08-11 23:01:33,309 - training - INFO - Epoch 3 completed. Average loss: 1.1153
+2025-08-11 23:01:33,309 - training - INFO - Starting epoch 4/20
+2025-08-11 23:03:31,314 - training - INFO - Epoch 4 completed. Average loss: 0.9424
+2025-08-11 23:03:31,314 - training - INFO - Starting epoch 5/20
+2025-08-11 23:05:27,511 - training - INFO - Epoch 5 completed. Average loss: 0.8268
+2025-08-11 23:05:27,511 - training - INFO - Starting epoch 6/20
+2025-08-11 23:06:32,627 - training - INFO - Step 200, Loss: 0.6549
+2025-08-11 23:07:23,315 - training - INFO - Epoch 6 completed. Average loss: 0.6826
+2025-08-11 23:07:23,315 - training - INFO - Starting epoch 7/20
+2025-08-11 23:09:16,829 - training - INFO - Epoch 7 completed. Average loss: 0.5869
+2025-08-11 23:09:16,829 - training - INFO - Starting epoch 8/20
+2025-08-11 23:11:11,557 - training - INFO - Epoch 8 completed. Average loss: 0.5098
+2025-08-11 23:11:11,557 - training - INFO - Starting epoch 9/20
+2025-08-11 23:11:50,905 - training - INFO - Step 300, Loss: 0.6195
+2025-08-11 23:13:05,181 - training - INFO - Epoch 9 completed. Average loss: 0.4493
+2025-08-11 23:13:05,181 - training - INFO - Starting epoch 10/20
+2025-08-11 23:15:00,745 - training - INFO - Epoch 10 completed. Average loss: 0.3917
+2025-08-11 23:15:00,745 - training - INFO - Starting epoch 11/20
+2025-08-11 23:16:53,501 - training - INFO - Epoch 11 completed. Average loss: 0.3307
+2025-08-11 23:16:53,501 - training - INFO - Starting epoch 12/20
+2025-08-11 23:17:06,198 - training - INFO - Step 400, Loss: 0.5349
+2025-08-11 23:18:47,504 - training - INFO - Epoch 12 completed. Average loss: 0.2803
+2025-08-11 23:18:47,504 - training - INFO - Starting epoch 13/20
+2025-08-11 23:20:39,719 - training - INFO - Epoch 13 completed. Average loss: 0.2405
+2025-08-11 23:20:39,719 - training - INFO - Starting epoch 14/20
+2025-08-11 23:22:25,054 - training - INFO - Step 500, Loss: 0.0928
+2025-08-11 23:22:25,485 - training - INFO - Validation Loss: 0.3022
+2025-08-11 23:22:36,037 - training - INFO - Epoch 14 completed. Average loss: 0.1979
+2025-08-11 23:22:36,037 - training - INFO - Starting epoch 15/20
+2025-08-11 23:24:33,208 - training - INFO - Epoch 15 completed. Average loss: 0.1688
+2025-08-11 23:24:33,208 - training - INFO - Starting epoch 16/20
+2025-08-11 23:26:29,432 - training - INFO - Epoch 16 completed. Average loss: 0.1466
+2025-08-11 23:26:29,432 - training - INFO - Starting epoch 17/20
+2025-08-11 23:27:46,442 - training - INFO - Step 600, Loss: 0.2373
+2025-08-11 23:28:23,132 - training - INFO - Epoch 17 completed. Average loss: 0.1410
+2025-08-11 23:28:23,132 - training - INFO - Starting epoch 18/20
+2025-08-11 23:30:16,211 - training - INFO - Epoch 18 completed. Average loss: 0.1279
+2025-08-11 23:30:16,211 - training - INFO - Starting epoch 19/20
+2025-08-11 23:32:08,951 - training - INFO - Epoch 19 completed. Average loss: 0.1166
+2025-08-11 23:32:08,951 - training - INFO - Starting epoch 20/20
+2025-08-11 23:33:00,688 - training - INFO - Step 700, Loss: 0.1285
+2025-08-11 23:34:04,342 - training - INFO - Epoch 20 completed. Average loss: 0.1063
+2025-08-11 23:34:04,342 - training - INFO - Training completed!
+2025-08-11 23:34:04,460 - __main__ - INFO - Training completed!
+2025-08-11 23:34:05,754 - __main__ - INFO - Model saved to checkpoints/toolformer.pt
+2025-08-11 23:56:11,702 - __main__ - INFO - Starting Toolformer in evaluate mode
+2025-08-11 23:56:13,969 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 23:56:13,969 - __main__ - INFO -   - Calculator
+2025-08-11 23:56:13,969 - __main__ - INFO -   - QA
+2025-08-11 23:56:13,969 - __main__ - INFO -   - Search
+2025-08-11 23:56:13,969 - __main__ - INFO -   - Calendar
+2025-08-11 23:56:13,969 - __main__ - INFO -   - Translator
+2025-08-11 23:56:13,969 - __main__ - INFO -   - Wikipedia
+2025-08-11 23:56:14,191 - __main__ - INFO - Model loaded from checkpoints/toolformer.pt
+2025-08-11 23:56:14,214 - __main__ - INFO - Evaluating model...
+2025-08-11 23:56:15,193 - __main__ - INFO - Evaluation results:
+2025-08-11 23:56:15,193 - __main__ - INFO -   avg_total_loss: 0.1820
+2025-08-11 23:56:15,193 - __main__ - INFO -   avg_language_modeling_loss: 0.1820
+2025-08-11 23:56:15,193 - __main__ - INFO -   avg_api_loss: 0.0000
+2025-08-11 23:56:15,193 - __main__ - INFO -   avg_perplexity: 1.1996
+2025-08-11 23:56:15,193 - __main__ - INFO -   total_beneficial_calls: 0.0000
+2025-08-11 23:56:15,194 - __main__ - INFO -   total_calls: 0.0000
+2025-08-11 23:56:15,194 - __main__ - INFO -   call_acceptance_rate: 0.0000
+2025-08-11 23:56:27,801 - __main__ - INFO - Starting Toolformer in generate mode
+2025-08-11 23:56:29,972 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 23:56:29,972 - __main__ - INFO -   - Calculator
+2025-08-11 23:56:29,972 - __main__ - INFO -   - QA
+2025-08-11 23:56:29,972 - __main__ - INFO -   - Search
+2025-08-11 23:56:29,972 - __main__ - INFO -   - Calendar
+2025-08-11 23:56:29,972 - __main__ - INFO -   - Translator
+2025-08-11 23:56:29,972 - __main__ - INFO -   - Wikipedia
+2025-08-11 23:56:30,189 - __main__ - INFO - Model loaded from checkpoints/toolformer.pt
+2025-08-11 23:57:30,444 - __main__ - INFO - Starting Toolformer in generate mode
+2025-08-11 23:57:33,100 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-11 23:57:33,100 - __main__ - INFO -   - Calculator
+2025-08-11 23:57:33,100 - __main__ - INFO -   - QA
+2025-08-11 23:57:33,100 - __main__ - INFO -   - Search
+2025-08-11 23:57:33,100 - __main__ - INFO -   - Calendar
+2025-08-11 23:57:33,100 - __main__ - INFO -   - Translator
+2025-08-11 23:57:33,100 - __main__ - INFO -   - Wikipedia
+2025-08-11 23:57:33,344 - __main__ - INFO - Model loaded from checkpoints/toolformer.pt
+2025-08-12 00:00:39,100 - __main__ - INFO - Starting Toolformer in train mode
+2025-08-12 00:00:41,317 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-08-12 00:00:41,317 - __main__ - INFO -   - Calculator
+2025-08-12 00:00:41,317 - __main__ - INFO -   - QA
+2025-08-12 00:00:41,317 - __main__ - INFO -   - Search
+2025-08-12 00:00:41,317 - __main__ - INFO -   - Calendar
+2025-08-12 00:00:41,317 - __main__ - INFO -   - Translator
+2025-08-12 00:00:41,317 - __main__ - INFO -   - Wikipedia
+2025-08-12 00:00:41,317 - __main__ - INFO - Loaded 120 training examples
+2025-08-12 00:00:41,317 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-08-12 00:00:41,317 - training - INFO - Starting Toolformer training...
+2025-08-12 00:00:41,317 - root - INFO - Generating augmented dataset with API calls...
+2025-09-04 21:27:04,957 - __main__ - INFO - Starting Toolformer in train mode
+2025-09-04 21:27:07,069 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-09-04 21:27:07,069 - __main__ - INFO -   - Calculator
+2025-09-04 21:27:07,069 - __main__ - INFO -   - QA
+2025-09-04 21:27:07,069 - __main__ - INFO -   - Search
+2025-09-04 21:27:07,069 - __main__ - INFO -   - Calendar
+2025-09-04 21:27:07,069 - __main__ - INFO -   - Translator
+2025-09-04 21:27:07,069 - __main__ - INFO -   - Wikipedia
+2025-09-04 21:27:07,069 - __main__ - INFO - Loaded 30 training examples
+2025-09-04 21:27:07,069 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-09-04 21:27:07,069 - training - INFO - Starting Toolformer training...
+2025-09-04 21:27:07,069 - root - INFO - Generating augmented dataset with API calls...
+2025-09-04 21:28:06,686 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-09-04 21:28:06,760 - training - INFO - Starting epoch 1/2
+2025-09-04 21:29:57,374 - training - INFO - Epoch 1 completed. Average loss: 2.3063
+2025-09-04 21:29:57,374 - training - INFO - Starting epoch 2/2
+2025-09-04 21:31:08,957 - __main__ - INFO - Starting Toolformer in train mode
+2025-09-04 21:31:11,053 - __main__ - INFO - Initialized Toolformer with 6 tools
+2025-09-04 21:31:11,053 - __main__ - INFO -   - Calculator
+2025-09-04 21:31:11,053 - __main__ - INFO -   - QA
+2025-09-04 21:31:11,053 - __main__ - INFO -   - Search
+2025-09-04 21:31:11,053 - __main__ - INFO -   - Calendar
+2025-09-04 21:31:11,053 - __main__ - INFO -   - Translator
+2025-09-04 21:31:11,053 - __main__ - INFO -   - Wikipedia
+2025-09-04 21:31:11,053 - __main__ - INFO - Loaded 30 training examples
+2025-09-04 21:31:11,053 - __main__ - INFO - Starting Toolformer training pipeline...
+2025-09-04 21:31:11,053 - training - INFO - Starting Toolformer training...
+2025-09-04 21:31:11,053 - root - INFO - Generating augmented dataset with API calls...
+2025-09-04 21:32:09,960 - root - INFO - Generated 141 augmented examples from 27 original texts
+2025-09-04 21:32:10,035 - training - INFO - Starting epoch 1/10
+2025-09-04 21:34:00,165 - training - INFO - Epoch 1 completed. Average loss: 2.3063
+2025-09-04 21:34:00,165 - training - INFO - Starting epoch 2/10
+2025-09-04 21:35:47,819 - training - INFO - Epoch 2 completed. Average loss: 1.3123
+2025-09-04 21:35:47,819 - training - INFO - Starting epoch 3/10
+2025-09-04 21:37:22,120 - training - INFO - Step 100, Loss: 1.1872
+2025-09-04 21:37:46,084 - training - INFO - Epoch 3 completed. Average loss: 1.1153
+2025-09-04 21:37:46,085 - training - INFO - Starting epoch 4/10
+2025-09-04 21:39:42,229 - training - INFO - Epoch 4 completed. Average loss: 0.9424
+2025-09-04 21:39:42,232 - training - INFO - Starting epoch 5/10
+2025-09-04 21:41:34,090 - training - INFO - Epoch 5 completed. Average loss: 0.8268
+2025-09-04 21:41:34,090 - training - INFO - Starting epoch 6/10
+2025-09-04 21:42:37,658 - training - INFO - Step 200, Loss: 0.6549
+2025-09-04 21:43:26,072 - training - INFO - Epoch 6 completed. Average loss: 0.6826
+2025-09-04 21:43:26,072 - training - INFO - Starting epoch 7/10
+2025-09-04 21:45:15,924 - training - INFO - Epoch 7 completed. Average loss: 0.5869
+2025-09-04 21:45:15,924 - training - INFO - Starting epoch 8/10
+2025-09-04 21:47:06,188 - training - INFO - Epoch 8 completed. Average loss: 0.5098
+2025-09-04 21:47:06,188 - training - INFO - Starting epoch 9/10
+2025-09-04 21:47:43,695 - training - INFO - Step 300, Loss: 0.6195
+2025-09-04 21:48:55,261 - training - INFO - Epoch 9 completed. Average loss: 0.4493
+2025-09-04 21:48:55,261 - training - INFO - Starting epoch 10/10
+2025-09-04 21:50:45,589 - training - INFO - Epoch 10 completed. Average loss: 0.3917
+2025-09-04 21:50:45,589 - training - INFO - Training completed!
+2025-09-04 21:50:45,696 - __main__ - INFO - Training completed!
+2025-09-04 21:50:46,940 - __main__ - INFO - Model saved to checkpoints/toolformer.pt
