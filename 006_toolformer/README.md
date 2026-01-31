@@ -64,20 +64,20 @@ pip install -r requirements.txt
 
 ```bash
 # Train with default settings
-python main.py --mode train --epochs 3 --batch-size 8
+python t01_gpt_oss_inference.py --mode train --epochs 3 --batch-size 8
 
 # Train with custom data
-python main.py --mode train --data-path data.txt --epochs 5
+python t01_gpt_oss_inference.py --mode train --data-path data.txt --epochs 5
 ```
 
 ### Inference
 
 ```bash
 # Interactive mode
-python main.py --mode interactive --model-path checkpoints/toolformer.pt
+python t01_gpt_oss_inference.py --mode interactive --model-path checkpoints/toolformer.pt
 
 # Generate text
-python main.py --mode generate --model-path checkpoints/toolformer.pt
+python t01_gpt_oss_inference.py --mode generate --model-path checkpoints/toolformer.pt
 ```
 
 ### Testing
@@ -252,7 +252,7 @@ The implementation includes comprehensive evaluation metrics:
 
 Run evaluation:
 ```bash
-python main.py --mode evaluate --model-path checkpoints/toolformer.pt --data-path test_data.txt
+python t01_gpt_oss_inference.py --mode evaluate --model-path checkpoints/toolformer.pt --data-path test_data.txt
 ```
 
 ## Testing
