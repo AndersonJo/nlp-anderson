@@ -52,7 +52,7 @@ The filtering mechanism is the core innovation - API calls are only retained if 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd 006_toolformer
+cd 11_toolformer
 
 # Install dependencies
 pip install -r requirements.txt
@@ -64,20 +64,20 @@ pip install -r requirements.txt
 
 ```bash
 # Train with default settings
-python t01_gpt_oss_inference.py --mode train --epochs 3 --batch-size 8
+python 01_gpt_oss_inference.py --mode train --epochs 3 --batch-size 8
 
 # Train with custom data
-python t01_gpt_oss_inference.py --mode train --data-path data.txt --epochs 5
+python 01_gpt_oss_inference.py --mode train --data-path data.txt --epochs 5
 ```
 
 ### Inference
 
 ```bash
 # Interactive mode
-python t01_gpt_oss_inference.py --mode interactive --model-path checkpoints/toolformer.pt
+python 01_gpt_oss_inference.py --mode interactive --model-path checkpoints/toolformer.pt
 
 # Generate text
-python t01_gpt_oss_inference.py --mode generate --model-path checkpoints/toolformer.pt
+python 01_gpt_oss_inference.py --mode generate --model-path checkpoints/toolformer.pt
 ```
 
 ### Testing
@@ -252,7 +252,7 @@ The implementation includes comprehensive evaluation metrics:
 
 Run evaluation:
 ```bash
-python t01_gpt_oss_inference.py --mode evaluate --model-path checkpoints/toolformer.pt --data-path test_data.txt
+python 01_gpt_oss_inference.py --mode evaluate --model-path checkpoints/toolformer.pt --data-path test_data.txt
 ```
 
 ## Testing

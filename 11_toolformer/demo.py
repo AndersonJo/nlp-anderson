@@ -92,8 +92,8 @@ def main():
     
     print("\n✨ Demo Complete!")
     print("The model architecture is ready for training.")
-    print("Run 'python t01_gpt_oss_inference.py --mode train' to start training.")
-    print("Run 'python t01_gpt_oss_inference.py --mode interactive' for interactive mode.")
+    print("Run 'python 01_gpt_oss_inference.py --mode train' to start training.")
+    print("Run 'python 01_gpt_oss_inference.py --mode interactive' for interactive mode.")
 
 
 if __name__ == "__main__":

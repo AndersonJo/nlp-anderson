@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Page Extractor</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">🧠</span>
+        <h1>LLM Extractor</h1>
+      </div>
+      <p class="subtitle">Extract insights from any page</p>
+    </header>
+
+    <!-- Page Info -->
+    <section class="page-info">
+      <div class="info-label">Current Page</div>
+      <div class="info-url" id="pageUrl">Loading...</div>
+    </section>
+
+    <!-- Action Button -->
+    <button class="extract-btn" id="extractBtn">
+      <span class="btn-icon">⚡</span>
+      <span class="btn-text">Extract Page</span>
+      <div class="btn-loader" id="btnLoader"></div>
+    </button>
+
+    <!-- Status -->
+    <div class="status" id="status"></div>
+
+    <!-- Response Area -->
+    <section class="response-section">
+      <div class="response-header">
+        <span class="response-title">Response</span>
+        <button class="clear-btn" id="clearBtn" title="Clear response">✕</button>
+      </div>
+      <div class="response-content" id="responseContent">
+        <div class="placeholder">
+          Click "Extract Page" to send this page to your local LLM server for analysis.
+        </div>
+      </div>
+    </section>
+
+    <!-- Debug Toggle -->
+    <details class="debug-section">
+      <summary class="debug-toggle">
+        <span>🔧 Debug Info</span>
+      </summary>
+      <div class="debug-content" id="debugContent">
+        <pre>No debug info yet.</pre>
+      </div>
+    </details>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Server: </span>
+      <code>localhost:8000</code>
+    </footer>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

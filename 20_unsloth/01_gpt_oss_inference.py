@@ -1,3 +1,8 @@
+"""
+해당 파일 핵심은 gpt-oss-20b 실행시키고, inference 하는 것
+이때 reasoning_error 설정도 할 수 있음
+"""
+
 from transformers import TextStreamer, BatchEncoding
 from unsloth import FastLanguageModel
 
