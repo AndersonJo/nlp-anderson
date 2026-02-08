@@ -1,168 +1,168 @@
-# MXFP4, Hopper, BF16 그리고 왜 에러가 났는가
+# MXFP4, Hopper, BF16, and Why the Error Happened
 
-아래는 GPT-OSS + Unsloth 환경에서 MXFP4 커널이 터지는 사례를 기준으로 정리한 기술 메모입니다.  
-문장은 짧게, 하지만 핵심이 빠지지 않게 구성했습니다.
-
----
-
-## 작성 플랜
-
-1. **문제 정의**: 어떤 에러가 어떤 조건에서 발생했는지 요약  
-2. **핵심 개념**: MXFP4·Hopper·BF16을 중심으로 필요한 배경만 설명  
-3. **관련 용어 리스트**: 자주 등장하는 정밀도·아키텍처·커널 키워드 정리  
-4. **원인 분석**: 왜 Hopper 전용 경로에서 실패했는지 구조적으로 설명  
-5. **해결 전략**: 실전에서 가장 빠른 우회와 검증 포인트 정리  
+This is a technical memo based on a real MXFP4 kernel failure in a GPT-OSS + Unsloth setup.  
+Sentences are short, but the key ideas are intact.
 
 ---
 
-## 문제 요약
+## Writing Plan
 
-에러 메시지의 요지는 “**Hopper 전용 스위즐만 지원**”이라는 것입니다.  
-즉, 현재 커널이 **Hopper 전용 경로**로 들어갔는데, 실제 실행 환경이 그 조건을 만족하지 못했습니다.  
-이때 가장 안전한 우회는 **MXFP4 경로를 피하고 BF16 체크포인트로 전환**하는 것입니다.
+1. **Problem definition**: summarize what failed and under which conditions  
+2. **Core concepts**: focus on MXFP4, Hopper, and BF16  
+3. **Keyword list**: precision, architecture, and kernel terms  
+4. **Root cause**: explain why the Hopper-only path failed  
+5. **Fix strategy**: show the fastest practical workaround  
 
 ---
 
-## 핵심 개념 (짧고 핵심만)
+## Problem Summary
+
+The error message says "only Hopper swizzling is supported."  
+This means the runtime entered a **Hopper-only kernel path**, but the environment did not satisfy the Hopper assumptions.  
+The safest workaround is to **avoid the MXFP4 path and use a BF16 checkpoint**.
+
+---
+
+## Core Concepts (short but essential)
 
 ### MXFP4
-- **혼합 정밀도 4-bit 포맷**입니다.  
-- 모델 가중치를 극도로 압축해 **메모리·대역폭**을 줄입니다.  
-- 대신 **특수 커널**과 **스케일 관리**가 필요합니다.  
+- A **mixed-precision 4-bit format**.  
+- It compresses weights to reduce **memory and bandwidth**.  
+- It requires **special kernels** and **scale handling**.  
 
 ### Hopper
-- NVIDIA **H100/Hopper 세대**를 의미합니다.  
-- **TMA(비동기 메모리 이동)**, **FP8 텐서코어** 등 특화 기능이 있습니다.  
-- 특정 **메모리 스위즐**과 커널 경로가 Hopper에만 맞습니다.  
+- NVIDIA **H100/Hopper generation**.  
+- Features **TMA (async memory movement)** and **FP8 Tensor Cores**.  
+- Some **memory swizzle** paths only work on Hopper.  
 
 ### BF16
-- **FP16보다 지수 범위가 넓은 16-bit** 형식입니다.  
-- 수치 안정성이 좋아 **추론·학습에서 안전한 기본값**으로 자주 씁니다.  
-- 특별한 하드웨어 경로 없이도 폭넓게 동작합니다.  
+- A **16-bit float with wider exponent range** than FP16.  
+- It is a stable default for **training and inference**.  
+- It runs broadly without special hardware-only paths.  
 
 ---
 
-## 관련 키워드 리스트 (간결 설명)
+## Keyword List (concise)
 
-### 정밀도·포맷
-- **FP32**: 표준 부동소수점. 느리지만 안정적.  
-- **TF32**: FP32의 속도 타협형. NVIDIA 전용 최적화.  
-- **FP16**: 속도·메모리 절약형. 범위는 좁음.  
-- **BF16**: FP16보다 안전한 범위. 대체 기본값.  
-- **FP8 (E4M3/E5M2)**: Hopper 이후 핵심 저정밀 포맷.  
-- **MXFP4**: 더 극단적 4-bit 포맷. 커널 의존도 높음.  
-- **INT8/INT4**: 정수 양자화. 빠르지만 정밀도 손실 큼.  
-- **NF4**: 4-bit 양자화 변형. QLoRA에서 자주 사용.  
+### Precision and formats
+- **FP32**: standard float, slow but stable.  
+- **TF32**: FP32 compromise, NVIDIA-specific.  
+- **FP16**: faster and smaller, narrower range.  
+- **BF16**: safer range, common default.  
+- **FP8 (E4M3/E5M2)**: key low-precision format on Hopper+.  
+- **MXFP4**: extreme 4-bit format, kernel-dependent.  
+- **INT8/INT4**: integer quantization, larger accuracy loss.  
+- **NF4**: 4-bit variant used in QLoRA.  
 
-### 아키텍처
-- **Ampere (A100)**: FP16/BF16 중심의 성숙한 플랫폼.  
-- **Ada (L40 등)**: 추론 지향. FP8 일부 지원.  
-- **Hopper (H100)**: TMA·FP8·스위즐 최적화 핵심 세대.  
-- **Blackwell (B100/GB200 등)**: FP8/MX 계열 강화, 도입기.  
+### Architectures
+- **Ampere (A100)**: mature FP16/BF16 platform.  
+- **Ada (L40, etc.)**: inference-oriented, partial FP8 support.  
+- **Hopper (H100)**: TMA, FP8, swizzle-optimized.  
+- **Blackwell (B100/GB200, etc.)**: FP8/FP4 focus, early cycle.  
 
-### 커널·가속
-- **Triton**: 커스텀 GPU 커널 DSL. 성능 민감.  
-- **GEMM**: 행렬 곱. 대부분의 모델 연산 핵심.  
-- **Swizzle**: 메모리 레이아웃 최적화 기법. 하드웨어 의존.  
-- **TMA**: Hopper 전용 고속 메모리 이동 유닛.  
+### Kernels and acceleration
+- **Triton**: custom GPU kernel DSL, performance-sensitive.  
+- **GEMM**: matrix multiply, core of model compute.  
+- **Swizzle**: memory layout optimization, hardware-dependent.  
+- **TMA**: Hopper-only memory transfer unit.  
 
-### 모델 구조·런타임
-- **MoE**: 여러 전문가 중 일부만 활성화.  
-- **Router/Experts**: MoE 내부 선택 및 분기.  
-- **KV Cache**: 디코딩 속도 핵심 캐시.  
-- **LoRA/QLoRA**: 경량 미세조정 기법.  
+### Model/runtime
+- **MoE**: activates a subset of experts.  
+- **Router/Experts**: selection and routing inside MoE.  
+- **KV Cache**: core to decoding speed.  
+- **LoRA/QLoRA**: lightweight finetuning.  
 
 ---
 
-## 정밀도·포맷 ↔ 커널 경로 (텍스트 그래프)
+## Precision/Format ↔ Kernel Path (text graph)
 
-아래는 **디렉토리 구조처럼** 연결 관계를 그린 것입니다.  
-실제 구현은 라이브러리 버전에 따라 달라질 수 있습니다.
+This is a directory-style view of common mappings.  
+Actual paths depend on library versions.
 
 ```
 Precision/Format
 ├─ FP32
-│  └─ GEMM (CUDA/cuBLAS 기본 경로, dtype="float32")
+│  └─ GEMM (CUDA/cuBLAS default, dtype="float32")
 ├─ TF32
-│  └─ GEMM (Tensor Core 경로, dtype="float32" + TF32 허용)
+│  └─ GEMM (Tensor Core path, dtype="float32" + TF32 enabled)
 ├─ FP16
-│  └─ GEMM (Tensor Core 경로, dtype="float16")
+│  └─ GEMM (Tensor Core path, dtype="float16")
 ├─ BF16
-│  └─ GEMM (Tensor Core 경로, dtype="bfloat16", 안정적 기본값)
+│  └─ GEMM (Tensor Core path, dtype="bfloat16", stable default)
 ├─ FP8 (E4M3/E5M2)
-│  ├─ GEMM (FP8 전용 커널, dtype="float8_e4m3fn"/"float8_e5m2", Hopper 최적화)
-│  └─ Swizzle/TMA (Hopper 전용 최적화)
+│  ├─ GEMM (FP8 kernels, dtype="float8_e4m3fn"/"float8_e5m2", Hopper-optimized)
+│  └─ Swizzle/TMA (Hopper-only optimization)
 ├─ FP4 (NVFP4)
-│  ├─ GEMM (FP4 전용 커널, NVFP4 포맷, dtype="float4"/"nvfp4", Blackwell 중심)
-│  └─ Micro‑tensor scaling (Blackwell 전용 경로 성격)
+│  ├─ GEMM (FP4 kernels, NVFP4 format, dtype="float4"/"nvfp4", Blackwell-centered)
+│  └─ Micro-tensor scaling (Blackwell-only flavor)
 ├─ MXFP4
-│  ├─ GEMM (MXFP4 전용 커널, MXFP4 포맷)
-│  └─ Swizzle/TMA (Hopper 전용 가정이 많음)
+│  ├─ GEMM (MXFP4 kernels, MXFP4 format)
+│  └─ Swizzle/TMA (often assumes Hopper)
 └─ INT8/INT4/NF4
-   ├─ GEMM (int kernel, dtype="int8"/"int4", NF4 포함)
-   └─ Dequant (스케일 복원 경로)
+   ├─ GEMM (int kernels, dtype="int8"/"int4", includes NF4)
+   └─ Dequant (scale restore path)
 ```
 
-핵심은 **정밀도 선택이 곧 커널 경로 선택**이라는 점입니다.  
-이 선택이 하드웨어와 어긋나면 에러로 이어집니다.  
+The key idea: **precision choice is kernel path choice**.  
+If that choice does not match the hardware, errors follow.
 
 ---
 
-## 왜 Hopper 전용 스위즐 에러가 뜨나
+## Why the Hopper-only swizzle error appears
 
-1. **MXFP4 경로는 전용 Triton 커널**로 가는 경우가 많습니다.  
-2. 그 커널은 **Hopper 전용 스위즐**을 가정합니다.  
-3. 실제 환경이 Hopper 조건을 만족하지 못하면 **컴파일 타임에서 바로 실패**합니다.  
-4. 그래서 오류가 모델 로딩 직후, 혹은 첫 번째 forward에서 터집니다.  
+1. **MXFP4 often routes to Triton-only kernels.**  
+2. Those kernels may **assume Hopper swizzle behavior**.  
+3. If the environment is not Hopper, it **fails at compile time**.  
+4. That is why it often crashes on the first forward call.  
 
-핵심은 “**커널 경로 선택**”입니다.  
-
----
-
-## 커널 경로란 무엇인가 (조금 더 자세히)
-
-커널 경로는 **같은 연산을 어떤 구현으로 실행할지 결정되는 실행 분기**입니다.  
-겉으로는 `matmul` 한 줄이지만, 내부에서는 여러 후보 커널이 경쟁합니다.  
-
-### 커널 경로를 바꾸는 대표 신호들
-- **정밀도**: BF16/FP16/FP8/MXFP4에 따라 경로가 달라집니다.  
-- **하드웨어 세대**: Ampere/Hopper/Blackwell마다 가능한 커널이 다릅니다.  
-- **라이브러리 버전**: Triton·Transformers·Unsloth 조합이 분기 조건이 됩니다.  
-- **옵션/플래그**: `load_in_4bit`, `dtype`, `use_cache` 같은 값도 경로에 영향합니다.  
-
-### 왜 이게 중요하나
-- 커널은 **컴파일 타임에 조건을 강하게 가정**합니다.  
-- 가정이 틀리면 **실행 전/초기에 바로 실패**합니다.  
-- 그래서 “동일 코드가 GPU만 바꿔도 망가지는” 현상이 생깁니다.  
-
-### 한 줄로 정리
-커널 경로는 **성능을 위해 만든 지름길**이고,  
-하드웨어가 맞지 않으면 **막힌 지름길**이 됩니다.  
+The core issue is **kernel path selection**.
 
 ---
 
-## 실전 해결 전략
+## What a "kernel path" means (more detail)
 
-### 1) 가장 빠른 우회
-- **MXFP4 체크포인트 대신 BF16 체크포인트 사용**  
-- 커널 경로가 단순해지고 호환성이 급격히 좋아집니다.  
+A kernel path is the **execution branch that chooses one concrete kernel implementation**.  
+On the surface you call `matmul`, but under the hood multiple kernels compete.  
 
-### 2) 재현·검증 포인트
-- 모델 로딩 직후 **첫 forward**에서 터지면 커널 문제일 확률이 큽니다.  
-- 로그에 **swizzle / Triton / matmul / mxfp**가 보이면 거의 확정입니다.  
+### Signals that change the kernel path
+- **Precision**: BF16/FP16/FP8/MXFP4 select different kernels.  
+- **GPU generation**: Ampere/Hopper/Blackwell enable different paths.  
+- **Library versions**: Triton/Transformers/Unsloth combos shift routing.  
+- **Options and flags**: `load_in_4bit`, `dtype`, `use_cache` can flip paths.  
 
-### 3) 장기 대응
-- Hopper 전용 커널이 아니라면 **fallback 경로**가 필요합니다.  
-- 특정 라이브러리 버전 조합이 스위즐 옵션을 바꿀 수 있습니다.  
-- 가장 안전한 방법은 **정밀도 경로를 단순화**하는 것입니다.  
+### Why this matters
+- Kernels make **strong compile-time assumptions**.  
+- If assumptions are wrong, they **fail early**.  
+- That is why the same code breaks by just changing the GPU.  
+
+### One-line summary
+Kernel paths are **performance shortcuts**,  
+and they become **dead ends** when the hardware does not match.  
 
 ---
 
-## 예제 코드 (대표적이고 실전적인 선택)
+## Practical Fix Strategy
 
-**추천 선택: PyTorch + Transformers + Unsloth**  
-Triton은 로우레벨 커널 최적화 용도라 블로그 예제로는 과합니다.  
-실무에서 가장 많이 쓰는 상위 스택이 이 조합입니다.  
+### 1) Fastest workaround
+- **Use a BF16 checkpoint instead of MXFP4.**  
+- The kernel path becomes simpler and far more compatible.  
+
+### 2) Reproduction signals
+- If it fails on the **first forward**, it is likely a kernel issue.  
+- If logs mention **swizzle / Triton / matmul / mxfp**, the odds are high.  
+
+### 3) Long-term approach
+- Non-Hopper hardware needs a **fallback path**.  
+- Version combos can toggle swizzle options.  
+- The safest move is to **simplify the precision path**.  
+
+---
+
+## Example Code (most practical choice)
+
+**Recommended stack: PyTorch + Transformers + Unsloth**  
+Triton is low-level and overkill for a blog example.  
+This is the most common production stack.
 
 ```python
 from unsloth import FastLanguageModel
@@ -195,15 +195,15 @@ _ = model.generate(
 )
 ```
 
-핵심은 **MXFP4 체크포인트 대신 BF16 체크포인트를 쓰는 것**입니다.  
-이 한 줄 선택이 커널 경로를 바꿔 에러를 피하게 합니다.  
+The key is **using a BF16 checkpoint instead of MXFP4**.  
+That single change switches the kernel path and avoids the failure.  
 
 ---
 
-## 한 줄 요약
+## One-line Summary
 
-MXFP4는 빠르지만 **하드웨어 의존성이 높고**,  
-BF16은 느리지만 **예측 가능하고 안정적**입니다.  
+MXFP4 is fast but **hardware-dependent**,  
+BF16 is slower but **predictable and stable**.  
 
-현장에서는 **“작동하는 경로를 우선 확보”**한 뒤  
-필요할 때만 저정밀 최적화를 다시 켜는 전략이 가장 현실적입니다.  
+In practice, **get a working path first**,  
+then re-enable low-precision optimizations only when needed.  
