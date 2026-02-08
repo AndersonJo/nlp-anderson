@@ -1,7 +1,8 @@
 --index-url https://pypi.org/simple
 --extra-index-url https://download.pytorch.org/whl/cu128
-nvidia-cudnn-cu12
+bitsandbytes
 nvidia-cublas-cu12
+nvidia-cudnn-cu12
 nvidia-cufft-cu12
 nvidia-curand-cu12
 nvidia-cusolver-cu12
@@ -10,6 +11,7 @@ nvidia-nccl-cu12
 torch
 torchvision
 transformers
-bitsandbytes
+triton
+triton-kernels
 unsloth_zoo[base]@git+https://github.com/unslothai/unsloth-zoo
 unsloth[base]@git+https://github.com/unslothai/unsloth

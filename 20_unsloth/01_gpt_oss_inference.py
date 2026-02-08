@@ -1,18 +1,20 @@
 """
 해당 파일 핵심은 gpt-oss-20b 실행시키고, inference 하는 것
 이때 reasoning_error 설정도 할 수 있음
+
+- unsloth 가 transformers 보다 더 먼저 import 되야 함
 """
 
-from transformers import TextStreamer, BatchEncoding
 from unsloth import FastLanguageModel
+from transformers import TextStreamer, BatchEncoding
 
 
 class GptOss:
 
-    def __init__(self, model_name: str = 'unsloth/gpt-oss-20b', max_seq_length: int = 2000):
+    def __init__(self, model_name: str = 'unsloth/gpt-oss-20b-BF16', max_seq_length: int = 2000):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=model_name,
-            dtype=None,  # torch.bfloat16,  # None for auto detection
+            dtype="bfloat16",
             max_seq_length=max_seq_length,
             load_in_4bit=False,
             full_finetuning=False,
