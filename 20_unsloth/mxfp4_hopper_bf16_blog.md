@@ -74,6 +74,37 @@
 
 ---
 
+## 정밀도·포맷 ↔ 커널 경로 (텍스트 그래프)
+
+아래는 **디렉토리 구조처럼** 연결 관계를 그린 것입니다.  
+실제 구현은 라이브러리 버전에 따라 달라질 수 있습니다.
+
+```
+Precision/Format
+├─ FP32
+│  └─ GEMM (CUDA/cuBLAS 기본 경로)
+├─ TF32
+│  └─ GEMM (Tensor Core 경로)
+├─ FP16
+│  └─ GEMM (Tensor Core 경로)
+├─ BF16
+│  └─ GEMM (Tensor Core 경로, 안정적 기본값)
+├─ FP8 (E4M3/E5M2)
+│  ├─ GEMM (FP8 전용 커널, Hopper 최적화)
+│  └─ Swizzle/TMA (Hopper 전용 최적화)
+├─ MXFP4
+│  ├─ GEMM (MXFP4 전용 커널)
+│  └─ Swizzle/TMA (Hopper 전용 가정이 많음)
+└─ INT8/INT4/NF4
+   ├─ GEMM (int kernel)
+   └─ Dequant (스케일 복원 경로)
+```
+
+핵심은 **정밀도 선택이 곧 커널 경로 선택**이라는 점입니다.  
+이 선택이 하드웨어와 어긋나면 에러로 이어집니다.  
+
+---
+
 ## 왜 Hopper 전용 스위즐 에러가 뜨나
 
 1. **MXFP4 경로는 전용 Triton 커널**로 가는 경우가 많습니다.  
