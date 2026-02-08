@@ -93,7 +93,7 @@ Precision/Format
 │  ├─ GEMM (FP8 전용 커널, dtype="float8_e4m3fn"/"float8_e5m2", Hopper 최적화)
 │  └─ Swizzle/TMA (Hopper 전용 최적화)
 ├─ FP4 (NVFP4)
-│  ├─ GEMM (FP4 전용 커널, NVFP4 포맷, Blackwell 중심)
+│  ├─ GEMM (FP4 전용 커널, NVFP4 포맷, dtype="float4"/"nvfp4", Blackwell 중심)
 │  └─ Micro‑tensor scaling (Blackwell 전용 경로 성격)
 ├─ MXFP4
 │  ├─ GEMM (MXFP4 전용 커널, MXFP4 포맷)
