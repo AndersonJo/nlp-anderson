@@ -92,6 +92,9 @@ Precision/Format
 ├─ FP8 (E4M3/E5M2)
 │  ├─ GEMM (FP8 전용 커널, Hopper 최적화)
 │  └─ Swizzle/TMA (Hopper 전용 최적화)
+├─ FP4 (NVFP4)
+│  ├─ GEMM (FP4 전용 커널, Blackwell 중심)
+│  └─ Micro‑tensor scaling (Blackwell 전용 경로 성격)
 ├─ MXFP4
 │  ├─ GEMM (MXFP4 전용 커널)
 │  └─ Swizzle/TMA (Hopper 전용 가정이 많음)
