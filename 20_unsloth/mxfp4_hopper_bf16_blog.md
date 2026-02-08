@@ -82,24 +82,24 @@
 ```
 Precision/Format
 ├─ FP32
-│  └─ GEMM (CUDA/cuBLAS 기본 경로)
+│  └─ GEMM (CUDA/cuBLAS 기본 경로, dtype="float32")
 ├─ TF32
-│  └─ GEMM (Tensor Core 경로)
+│  └─ GEMM (Tensor Core 경로, dtype="float32" + TF32 허용)
 ├─ FP16
-│  └─ GEMM (Tensor Core 경로)
+│  └─ GEMM (Tensor Core 경로, dtype="float16")
 ├─ BF16
-│  └─ GEMM (Tensor Core 경로, 안정적 기본값)
+│  └─ GEMM (Tensor Core 경로, dtype="bfloat16", 안정적 기본값)
 ├─ FP8 (E4M3/E5M2)
-│  ├─ GEMM (FP8 전용 커널, Hopper 최적화)
+│  ├─ GEMM (FP8 전용 커널, dtype="float8_e4m3fn"/"float8_e5m2", Hopper 최적화)
 │  └─ Swizzle/TMA (Hopper 전용 최적화)
 ├─ FP4 (NVFP4)
-│  ├─ GEMM (FP4 전용 커널, Blackwell 중심)
+│  ├─ GEMM (FP4 전용 커널, NVFP4 포맷, Blackwell 중심)
 │  └─ Micro‑tensor scaling (Blackwell 전용 경로 성격)
 ├─ MXFP4
-│  ├─ GEMM (MXFP4 전용 커널)
+│  ├─ GEMM (MXFP4 전용 커널, MXFP4 포맷)
 │  └─ Swizzle/TMA (Hopper 전용 가정이 많음)
 └─ INT8/INT4/NF4
-   ├─ GEMM (int kernel)
+   ├─ GEMM (int kernel, dtype="int8"/"int4", NF4 포함)
    └─ Dequant (스케일 복원 경로)
 ```
 
