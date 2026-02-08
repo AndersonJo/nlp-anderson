@@ -108,6 +108,39 @@ If that choice does not match the hardware, errors follow.
 
 ---
 
+## Kernel Selection Flow (text tree)
+
+This is a simplified internal routing view.  
+The actual checks are more granular and framework-specific.
+
+```
+Kernel Selection
+├─ Op: GEMM / Linear / Matmul
+│  ├─ Check device capability (SM, architecture)
+│  │  ├─ Hopper? -> allow TMA/Swizzle paths
+│  │  ├─ Blackwell? -> allow FP4/NVFP4 paths
+│  │  └─ Other -> generic Tensor Core or CUDA paths
+│  ├─ Check precision / format
+│  │  ├─ FP32/TF32 -> cuBLAS / TF32-enabled GEMM
+│  │  ├─ BF16/FP16 -> Tensor Core GEMM
+│  │  ├─ FP8 -> FP8 kernels (often Hopper-optimized)
+│  │  ├─ FP4/NVFP4 -> FP4 kernels (often Blackwell-optimized)
+│  │  └─ MXFP4 -> MXFP4 kernels (specialized, high constraints)
+│  ├─ Check library availability
+│  │  ├─ Triton kernel exists? -> Triton path
+│  │  ├─ CUTLASS/TensorRT path? -> vendor path
+│  │  └─ Fallback -> cuBLAS / default GEMM
+│  └─ Check runtime flags
+│     ├─ load_in_4bit / quant config -> quantized kernel
+│     ├─ use_cache -> cache-aware kernel
+│     └─ debug/disable flags -> safe fallback
+```
+
+Practical takeaway: **selection is multi-stage**.  
+If any stage assumes unsupported hardware, compilation can fail early.
+
+---
+
 ## Why the Hopper-only swizzle error appears
 
 1. **MXFP4 often routes to Triton-only kernels.**  
