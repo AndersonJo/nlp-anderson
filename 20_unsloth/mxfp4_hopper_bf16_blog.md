@@ -102,6 +102,48 @@
 
 ---
 
+## 예제 코드 (대표적이고 실전적인 선택)
+
+**추천 선택: PyTorch + Transformers + Unsloth**  
+Triton은 로우레벨 커널 최적화 용도라 블로그 예제로는 과합니다.  
+실무에서 가장 많이 쓰는 상위 스택이 이 조합입니다.  
+
+```python
+from unsloth import FastLanguageModel
+from transformers import TextStreamer
+
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name="unsloth/gpt-oss-20b-BF16",
+    dtype="bfloat16",
+    max_seq_length=2000,
+    load_in_4bit=False,
+    full_finetuning=False,
+    low_cpu_mem_usage=True,
+    device_map="cuda",
+)
+
+messages = [{"role": "user", "content": "Solve x^5 + 3x^4 - 10 = 3."}]
+inputs = tokenizer.apply_chat_template(
+    messages,
+    add_generation_prompt=True,
+    return_tensors="pt",
+    return_dict=True,
+    reasoning_effort="medium",
+).to("cuda")
+
+_ = model.generate(
+    **inputs,
+    max_new_tokens=512,
+    streamer=TextStreamer(tokenizer),
+    use_cache=True,
+)
+```
+
+핵심은 **MXFP4 체크포인트 대신 BF16 체크포인트를 쓰는 것**입니다.  
+이 한 줄 선택이 커널 경로를 바꿔 에러를 피하게 합니다.  
+
+---
+
 ## 한 줄 요약
 
 MXFP4는 빠르지만 **하드웨어 의존성이 높고**,  
