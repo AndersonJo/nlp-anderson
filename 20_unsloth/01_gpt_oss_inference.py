@@ -14,7 +14,7 @@ class GptOss:
     def __init__(self, model_name: str = 'unsloth/gpt-oss-20b-BF16', max_seq_length: int = 2000):
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(
             model_name=model_name,
-            dtype="bfloat16",
+            dtype="bfloat16",  # bfloat16 works well on Blackwell. None does not work. it uses Hopper Kernel.
             max_seq_length=max_seq_length,
             load_in_4bit=False,
             full_finetuning=False,
