@@ -7,11 +7,11 @@ using the modular gpt_oss package.
 Usage:
     python 02_gpt_oss_fine_tuning.py
 """
+from gpt_oss import GptOssModel, ModelConfig, LoRAConfig, preprocess_sql_dataset
+print('gps_oss should be called first')
+
 from datasets import load_dataset
 from trl import SFTConfig, SFTTrainer
-
-from gpt_oss import GptOssModel, ModelConfig, LoRAConfig, preprocess_sql_dataset
-
 
 # =============================================================================
 # WORKAROUND: Patch to_dict() to fix token obfuscation bug
@@ -82,7 +82,6 @@ def main():
     # ========================================================================
     print("\n[4/4] Starting training...")
 
-    
     trainer = SFTTrainer(
         model=model.model,
         processing_class=model.tokenizer,
@@ -103,19 +102,11 @@ def main():
             seed=3407,
             output_dir="outputs",
             report_to="none",  # Use TrackIO/WandB etc
-            # Fix for accelerate device placement with Unsloth models
             fp16=False,
             bf16=True,
         ),
     )
     
-    # trainer = SFTTrainer(
-    #     model=model.model,
-    #     processing_class=model.tokenizer,
-    #     train_dataset=train_dataset,
-    #     args=sft_config,
-    # )
-
     trainer.train()
     
     # ========================================================================
